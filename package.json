@@ -3,8 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/logs/",
+      "/pacts/",
+      "/coverage/"
+    ],
+    "coverageDirectory": "coverage"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "tdd": "jest --watch",
+    "build": "tsc -d",
+    "prestart": "npm run build",
+    "start": "node dist/"
   },
   "author": "",
   "license": "ISC",
