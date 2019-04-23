@@ -5,6 +5,6 @@ export class HelloWorldController {
   @Path('/hello')
   @GET
   async sayHelloToUnknownUser(): Promise<string> {
-    return '';
+    return 'Hello, World!';
   }
 }
