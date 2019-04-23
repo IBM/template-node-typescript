@@ -30,6 +30,10 @@ describe('Hello controller', () => {
     test('should return 200 status', done => {
       request(app).get(`/hello/${name}`).expect(200, done);
     });
+
+    test('should return "Hello, Johnny!"', done => {
+      request(app).get(`/hello/${name}`).expect(`Hello, ${name}!`, done);
+    });
   })
 
 });
