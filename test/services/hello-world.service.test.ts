@@ -21,6 +21,12 @@ describe('Hello World service', () =>{
         expect(service.greeting(name)).toEqual(`Hello, ${name}!`);
       });
     });
+
+    describe('when no name provided', () => {
+      test('then return "Hello, World!"', () => {
+        expect(service.greeting()).toEqual('Hello, World!!');
+      });
+    })
   });
 
 });
