@@ -1,4 +1,4 @@
-import {GET, Path} from 'typescript-rest';
+import {GET, Path, PathParam} from 'typescript-rest';
 
 export class HelloWorldController {
 
@@ -10,7 +10,7 @@ export class HelloWorldController {
 
   @Path('/hello/:name')
   @GET
-  async sayHello(): Promise<string> {
-    return '';
+  async sayHello(@PathParam('name') name: string): Promise<string> {
+    return `Hello, ${name}!`;
   }
 }
