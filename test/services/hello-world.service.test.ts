@@ -1,17 +1,14 @@
-class HelloWorldService {
-  greeting(name: string = 'World'): string {
-    return `Hello, ${name}!`;
-  }
-}
+import {HelloWorldService} from '../../src/services';
 
 describe('Hello World service', () =>{
-  test('canary test verifies test infrastructure', () => {
-    expect(true).toBe(true);
-  });
 
   let service: HelloWorldService;
   beforeAll(() => {
     service = new HelloWorldService();
+  });
+
+  test('canary test verifies test infrastructure', () => {
+    expect(service).not.toBeUndefined();
   });
 
   describe('Given greeting()', () => {
