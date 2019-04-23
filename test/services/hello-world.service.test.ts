@@ -1,5 +1,5 @@
 class HelloWorldService {
-  greeting(name: string): string {
+  greeting(name: string = 'World'): string {
     return `Hello, ${name}!`;
   }
 }
@@ -24,7 +24,7 @@ describe('Hello World service', () =>{
 
     describe('when no name provided', () => {
       test('then return "Hello, World!"', () => {
-        expect(service.greeting()).toEqual('Hello, World!!');
+        expect(service.greeting()).toEqual('Hello, World!');
       });
     })
   });
