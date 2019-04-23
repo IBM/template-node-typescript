@@ -24,4 +24,12 @@ describe('Hello controller', () => {
     });
   });
 
+  describe('Given /hello/Johnny', () => {
+    const name = 'Johnny';
+
+    test('should return 200 status', done => {
+      request(app).get(`/hello/${name}`).expect(200, done);
+    });
+  })
+
 });
