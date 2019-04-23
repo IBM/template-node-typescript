@@ -10,12 +10,11 @@ class MockHelloWorldService implements HelloWorldService {
 
 describe('Hello controller', () => {
 
-  let apiServer: ApiServer;
   let app: Application;
   let mockGreeting: jest.Mock;
 
   beforeEach(() => {
-    apiServer = new ApiServer();
+    const apiServer = new ApiServer();
 
     app = apiServer.getApp();
 
@@ -36,12 +35,8 @@ describe('Hello controller', () => {
       mockGreeting.mockReturnValueOnce(expectedResponse);
     });
 
-    test('should return 200 status', done => {
-      request(app).get('/hello').expect(200, done);
-    });
-
     test('should return "Hello, World!"', done => {
-      request(app).get('/hello').expect(expectedResponse, done);
+      request(app).get('/hello').expect(200).expect(expectedResponse, done);
     });
   });
 
@@ -52,12 +47,8 @@ describe('Hello controller', () => {
       mockGreeting.mockImplementation(name => name);
     });
 
-    test('should return 200 status', done => {
-      request(app).get(`/hello/${name}`).expect(200, done);
-    });
-
     test('should return "Hello, Johnny!"', done => {
-      request(app).get(`/hello/${name}`).expect(name, done);
+      request(app).get(`/hello/${name}`).expect(200).expect(name, done);
     });
   })
 
