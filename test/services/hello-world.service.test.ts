@@ -1,4 +1,4 @@
-import {HelloWorldService} from '../../src/services';
+import {HelloWorldService} from '../../src/services/hello-world.service';
 import {ApiServer} from '../../src/server';
 
 describe('Hello World service', () =>{
