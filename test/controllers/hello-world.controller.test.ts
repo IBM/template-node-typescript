@@ -18,6 +18,10 @@ describe('Hello controller', () => {
     test('should return 200 status', done => {
       request(app).get('/hello').expect(200, done);
     });
+
+    test('should return "Hello, World!"', done => {
+      request(app).get('/hello').expect('Hello, World!', done);
+    });
   });
 
 });
