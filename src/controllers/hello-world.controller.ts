@@ -1,16 +1,20 @@
 import {GET, Path, PathParam} from 'typescript-rest';
+import {Inject} from 'typescript-ioc';
+import {HelloWorldService} from '../services';
 
 export class HelloWorldController {
+  @Inject
+  service: HelloWorldService;
 
   @Path('/hello')
   @GET
   async sayHelloToUnknownUser(): Promise<string> {
-    return 'Hello, World!';
+    return this.service.greeting();
   }
 
   @Path('/hello/:name')
   @GET
   async sayHello(@PathParam('name') name: string): Promise<string> {
-    return `Hello, ${name}!`;
+    return this.service.greeting(name);
   }
 }
