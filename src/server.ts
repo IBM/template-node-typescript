@@ -1,10 +1,13 @@
 import * as express from 'express';
 import {Server} from 'typescript-rest';
+import * as fs from 'fs';
 import * as http from 'http';
 import * as path from 'path';
 import * as cors from 'cors';
 import {AddressInfo} from 'net';
 import {Config, Container} from 'typescript-ioc';
+
+const apiContext = '';
 
 export class ApiServer {
 
@@ -19,25 +22,35 @@ export class ApiServer {
 
     Server.useIoC(true);
 
-    this.app.use(express.static(path.join(__dirname, '../public'), { maxAge: 31557600000 }));
+    this.app.use(apiContext, express.static(path.join(__dirname, '../public'), { maxAge: 31557600000 }));
 
+    const apiRouter: express.Router = express.Router();
     Server.loadServices(
-      this.app,
+      apiRouter,
       [
         'controllers/*',
       ],
       __dirname,
     );
 
-    Server.swagger(
-      this.app,
-      {
-        filePath: './dist/swagger.json',
-        schemes: ['http'],
-        host: 'localhost:3000',
-        endpoint: '/api-docs'
-      },
-    );
+    const swaggerPath = path.join(__dirname, './swagger.json');
+    if (fs.existsSync(swaggerPath)) {
+      Server.swagger(
+        apiRouter,
+        {
+          filePath: swaggerPath,
+          schemes: ['http'],
+          host: 'localhost:3000',
+          endpoint: '/api-docs'
+        },
+      );
+    }
+
+    if (apiContext) {
+      this.app.use(apiContext, apiRouter);
+    } else {
+      this.app.use(apiRouter);
+    }
   }
 
   /**

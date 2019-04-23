@@ -1,0 +1,11 @@
+{
+  "swagger": {
+    "basePath": "",
+    "outputDirectory": "./dist",
+    "entryFile": "./src/controllers/index.ts",
+    "produces": [
+      "application/json"
+    ]
+  }
+}
+
