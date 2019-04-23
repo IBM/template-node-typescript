@@ -1,5 +1,6 @@
 class HelloWorldService {
-  greeting(name: string) {
+  greeting(name: string): string {
+    return `Hello, ${name}!`;
   }
 }
 
