@@ -7,4 +7,10 @@ export class HelloWorldController {
   async sayHelloToUnknownUser(): Promise<string> {
     return 'Hello, World!';
   }
+
+  @Path('/hello/:name')
+  @GET
+  async sayHello(): Promise<string> {
+    return '';
+  }
 }
