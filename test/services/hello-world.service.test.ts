@@ -1,10 +1,14 @@
 import {HelloWorldService} from '../../src/services';
+import {ApiServer} from '../../src/server';
 
 describe('Hello World service', () =>{
 
+  let app: ApiServer;
   let service: HelloWorldService;
   beforeAll(() => {
-    service = new HelloWorldService();
+    app = new ApiServer();
+
+    service = app.get(HelloWorldService);
   });
 
   test('canary test verifies test infrastructure', () => {
