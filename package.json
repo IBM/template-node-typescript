@@ -22,7 +22,8 @@
     "swagger": "swaggerGen -c ./swagger.config.json",
     "prestart": "npm run build",
     "start": "npm run serve",
-    "serve": "node dist"
+    "serve": "node dist",
+    "upgrade-interactive": "npm-check --update"
   },
   "author": "",
   "license": "ISC",
@@ -44,6 +45,7 @@
     "@types/node": "^11.13.6",
     "babel-jest": "^24.7.1",
     "jest": "^24.7.1",
+    "npm-check": "^5.9.0",
     "rimraf": "^2.6.3",
     "supertest": "^4.0.2",
     "ts-jest": "^24.0.2",
