@@ -27,6 +27,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bunyan": "^1.8.12",
+    "bunyan-prettystream": "^0.1.3",
     "cors": "^2.8.5",
     "typescript-ioc": "^1.2.5",
     "typescript-rest": "^2.0.0",
