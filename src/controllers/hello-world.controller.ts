@@ -1,20 +1,20 @@
 import {GET, Path, PathParam} from 'typescript-rest';
-import {Inject} from 'typescript-ioc';
+import {AutoWired, Inject, Singleton} from 'typescript-ioc';
 import {HelloWorldApi} from '../services';
-import {ConsoleLoggerService, LoggerApi} from '../logger';
+import {LoggerApi} from '../logger';
 
+@AutoWired
+@Singleton
 @Path('/hello')
 export class HelloWorldController {
 
-  logger: LoggerApi;
+  @Inject
+  service: HelloWorldApi;
+  @Inject
+  _baseLogger: LoggerApi;
 
-  constructor(
-    @Inject
-    private service: HelloWorldApi,
-    @Inject
-    logger: LoggerApi = new ConsoleLoggerService(),
-  ) {
-    this.logger = logger.child('HelloWorldController');
+  get logger() {
+    return this._baseLogger.child('HelloWorldController');
   }
 
   @GET
