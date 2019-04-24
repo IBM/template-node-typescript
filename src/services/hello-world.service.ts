@@ -9,7 +9,7 @@ export class HelloWorldService implements HelloWorldApi {
 
   constructor(
     @Inject
-    logger: LoggerApi = new ConsoleLoggerService(),
+    logger: LoggerApi,
   ) {
     this.logger = logger.child('HelloWorldService');
   }

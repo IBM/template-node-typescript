@@ -3,6 +3,7 @@ import * as request from 'supertest';
 import {ApiServer} from '../../src/server';
 import {Scope} from 'typescript-ioc';
 import {HelloWorldApi} from '../../src/services';
+import {buildApiServer} from '../helper';
 
 class MockHelloWorldService implements HelloWorldApi {
   greeting = jest.fn().mockName('greeting');
@@ -14,7 +15,7 @@ describe('Hello controller', () => {
   let mockGreeting: jest.Mock;
 
   beforeEach(() => {
-    const apiServer = new ApiServer();
+    const apiServer = buildApiServer();
 
     app = apiServer.getApp();
 
