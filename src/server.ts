@@ -4,6 +4,7 @@ import * as http from 'http';
 import * as path from 'path';
 import * as cors from 'cors';
 import {AddressInfo} from 'net';
+import {Config, Container} from 'typescript-ioc';
 
 export class ApiServer {
 
@@ -24,7 +25,6 @@ export class ApiServer {
       this.app,
       [
         'controllers/*',
-        'services/*',
       ],
       __dirname,
     );
@@ -81,5 +81,13 @@ export class ApiServer {
 
   public getApp(): express.Application {
     return this.app;
+  }
+
+  public bind(source: Function): Config {
+    return Container.bind(source);
+  }
+
+  public get<T>(source: Function): T {
+    return Container.get(source);
   }
 }

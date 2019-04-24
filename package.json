@@ -13,11 +13,16 @@
     "coverageDirectory": "coverage"
   },
   "scripts": {
+    "clean": "rimraf dist",
     "test": "jest",
     "tdd": "jest --watch",
-    "build": "tsc -d",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "postbuild": "npm run swagger",
+    "swagger": "swaggerGen -c ./swagger.config.json",
     "prestart": "npm run build",
-    "start": "node dist/"
+    "start": "npm run serve",
+    "serve": "node dist"
   },
   "author": "",
   "license": "ISC",
@@ -37,6 +42,7 @@
     "@types/node": "^11.13.6",
     "babel-jest": "^24.7.1",
     "jest": "^24.7.1",
+    "rimraf": "^2.6.3",
     "supertest": "^4.0.2",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.1.0",
