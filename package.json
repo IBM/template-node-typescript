@@ -8,13 +8,16 @@
       "/node_modules/",
       "/logs/",
       "/pacts/",
-      "/coverage/"
+      "/coverage/",
+      "/src/logger/"
     ],
-    "coverageDirectory": "coverage"
+    "coverageDirectory": "coverage",
+    "preset": "ts-jest",
+    "testEnvironment": "node"
   },
   "scripts": {
     "clean": "rimraf dist",
-    "test": "jest",
+    "test": "jest --coverage",
     "tdd": "jest --watch",
     "prebuild": "npm run clean",
     "build": "tsc",
