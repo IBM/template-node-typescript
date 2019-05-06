@@ -6,14 +6,21 @@ import * as path from 'path';
 import * as cors from 'cors';
 import {AddressInfo} from 'net';
 import {Config, Container} from 'typescript-ioc';
+import * as npmPackage from '../package.json';
 
-const apiContext = '';
+const config = npmPackage.config || {
+  protocol: 'http',
+  host: 'localhost',
+  port: 3000,
+  'context-root': '/'
+};
+const apiContext = config['context-root'];
 
 export class ApiServer {
 
   private readonly app: express.Application;
   private server: http.Server = null;
-  public PORT: number = +process.env.PORT || 3000;
+  public PORT: number = +process.env.PORT || npmPackage.config.port;
 
   constructor() {
     this.app = express();
@@ -39,8 +46,8 @@ export class ApiServer {
         apiRouter,
         {
           filePath: swaggerPath,
-          schemes: ['http'],
-          host: 'localhost:3000',
+          schemes: [config.protocol],
+          host: `${config.host}:${config.port}`,
           endpoint: '/api-docs'
         },
       );

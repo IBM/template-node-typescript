@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "config": {
+    "protocol": "http",
+    "host": "localhost",
+    "port": 3000,
+    "context-root": "/"
+  },
   "jest": {
     "coveragePathIgnorePatterns": [
       "/node_modules/",
@@ -15,6 +21,11 @@
     "preset": "ts-jest",
     "testEnvironment": "node"
   },
+  "pact": {
+    "broker-url": "",
+    "provider": "",
+    "publish-result": "true"
+  },
   "scripts": {
     "clean": "rimraf dist",
     "test": "jest --coverage",
@@ -26,7 +37,9 @@
     "prestart": "npm run build",
     "start": "npm run serve",
     "serve": "node dist",
-    "upgrade-interactive": "npm-check --update"
+    "upgrade-interactive": "npm-check --update",
+    "pact:verify": "pact verify -b $npm_package_config_protocol://$npm_package_config_host:$npm_package_config_port$npm_package_config_context-root -p $npm_package_pact_provider -bu $npm_package_pact_broker-url -v $npm_package_version -pub $npm_package_pact_publish-result",
+    "pact:publish": "pact publish -p ./pacts -c $npm_package_version -b $npm_package_pact_broker-url"
   },
   "author": "",
   "license": "ISC",
