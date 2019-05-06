@@ -1,3 +1,3 @@
 export abstract class HelloWorldApi {
-  abstract greeting(name?: string): string;
+  abstract async greeting(name?: string): Promise<string>;
 }

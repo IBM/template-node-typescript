@@ -33,7 +33,7 @@ describe('Hello controller', () => {
     const expectedResponse = 'Hello there!';
 
     beforeEach(() => {
-      mockGreeting.mockReturnValueOnce(expectedResponse);
+      mockGreeting.mockReturnValueOnce(Promise.resolve(expectedResponse));
     });
 
     test('should return "Hello, World!"', done => {
