@@ -78,7 +78,7 @@ describe('HelloWorldRandomService', () => {
       });
 
       test('should return random name', async () => {
-        expect(await service.greeting()).toEqual(`Hello, ${firstName} ${lastName}`);
+        expect(await service.greeting()).toEqual(`Hello, ${firstName} ${lastName}!`);
       });
     });
   });

@@ -15,10 +15,11 @@
     ],
     "coveragePathIgnorePatterns": [
       "node_modules/",
-      "logs/",
-      "pacts/",
+      "logs/.*",
+      "dist/.*",
+      "pacts/.*",
       "coverage/",
-      "src/logger/"
+      "src/logger/.*"
     ],
     "coverageDirectory": "coverage",
     "preset": "ts-jest",
