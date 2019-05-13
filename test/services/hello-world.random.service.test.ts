@@ -3,6 +3,16 @@ import {HelloWorldRandomService} from '../../src/services';
 import {ApiServer} from '../../src/server';
 import {buildApiServer} from '../helper';
 import * as npmPackage from '../../package.json';
+import {HelloWorldRandomConfig} from "../../src/config/hello-world.random.config";
+import {Provider} from "typescript-ioc";
+
+const configProvider: Provider = {
+  get: () => {
+    return {
+      hostname: 'http://localhost:1235'
+    }
+  }
+};
 
 describe('HelloWorldRandomService', () => {
 
@@ -10,6 +20,8 @@ describe('HelloWorldRandomService', () => {
   let service: HelloWorldRandomService;
   beforeAll(() => {
     app = buildApiServer();
+
+    app.bind(HelloWorldRandomConfig).provider(configProvider);
 
     service = app.get(HelloWorldRandomService);
   });

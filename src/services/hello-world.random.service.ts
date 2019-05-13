@@ -1,7 +1,8 @@
 import {Inject, Provides, Singleton} from 'typescript-ioc';
 import * as request from 'superagent';
 import {HelloWorldApi} from './hello-world.api';
-import {ConsoleLoggerService, LoggerApi} from '../logger';
+import {LoggerApi} from '../logger';
+import {HelloWorldRandomConfig} from "../config/hello-world.random.config";
 
 class RandomUserResponse {
   results: RandomUser[];
@@ -16,12 +17,15 @@ class RandomUser {
 }
 
 @Singleton
+@Provides(HelloWorldApi)
 export class HelloWorldRandomService implements HelloWorldApi {
   logger: LoggerApi;
 
   constructor(
     @Inject
     logger: LoggerApi,
+    @Inject
+    private config: HelloWorldRandomConfig = {hostname: 'https://randomuser.me'}
   ) {
     this.logger = logger.child('HelloWorldRandomService');
   }
@@ -35,7 +39,7 @@ export class HelloWorldRandomService implements HelloWorldApi {
     this.logger.info(`Generating random greeting`);
     console.log('making request');
     const {first, last} = await request
-      .get('http://localhost:1235/api')
+      .get(`${this.config.hostname}/api`)
       .type('application/json')
       .accept('application/json')
       .then((value: request.Response) => {
