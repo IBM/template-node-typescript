@@ -7,7 +7,7 @@
     "protocol": "http",
     "host": "localhost",
     "port": 3000,
-    "context-root": "/"
+    "contextRoot": "/"
   },
   "jest": {
     "setupFiles": [
@@ -26,9 +26,10 @@
     "testEnvironment": "node"
   },
   "pact": {
-    "broker-url": "",
+    "providerBaseUrl": "",
+    "pactBrokerUrl": "",
     "provider": "",
-    "publish-result": "true"
+    "publishVerificationResult": "true"
   },
   "scripts": {
     "clean": "rimraf dist",
@@ -42,8 +43,8 @@
     "start": "npm run serve",
     "serve": "node dist",
     "upgrade-interactive": "npm-check --update",
-    "pact:verify": "pact verify -b $npm_package_config_protocol://$npm_package_config_host:$npm_package_config_port$npm_package_config_context-root -p $npm_package_pact_provider -bu $npm_package_pact_broker-url -v $npm_package_version -pub $npm_package_pact_publish-result",
-    "pact:publish": "pact publish -p ./pacts -c $npm_package_version -b $npm_package_pact_broker-url"
+    "pact:verify": "node-ts test/pact-verify --p $npm_package_config_protocol://$npm_package_config_host:$npm_package_config_port/$npm_package_config_contextRoot",
+    "pact:publish": "pact publish -p ./pacts -c $npm_package_version -b $npm_package_pact_pactBrokerUrl"
   },
   "author": "",
   "license": "ISC",
@@ -68,6 +69,7 @@
     "@types/jest-plugin-context": "^2.9.2",
     "@types/node": "^11.13.6",
     "@types/superagent": "^4.1.1",
+    "@types/yargs": "^13.0.0",
     "babel-jest": "^24.7.1",
     "jest": "^24.7.1",
     "jest-plugin-context": "^2.9.0",
@@ -77,6 +79,7 @@
     "ts-jest": "^24.0.2",
     "ts-node": "^8.1.0",
     "tslint": "^5.16.0",
-    "typescript": "^3.4.4"
+    "typescript": "^3.4.4",
+    "yargs": "^13.2.2"
   }
 }
