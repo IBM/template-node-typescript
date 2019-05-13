@@ -29,7 +29,11 @@ export class ApiServer {
 
     Server.useIoC(true);
 
-    this.app.use(apiContext, express.static(path.join(__dirname, '../public'), { maxAge: 31557600000 }));
+    if (!apiContext || apiContext === '/') {
+      this.app.use(express.static(path.join(process.cwd(), 'public'), { maxAge: 31557600000 }));
+    } else {
+      this.app.use(apiContext, express.static(path.join(process.cwd(), 'public'), { maxAge: 31557600000 }));
+    }
 
     const apiRouter: express.Router = express.Router();
     Server.loadServices(
@@ -40,7 +44,7 @@ export class ApiServer {
       __dirname,
     );
 
-    const swaggerPath = path.join(__dirname, './swagger.json');
+    const swaggerPath = path.join(process.cwd(), 'dist/swagger.json');
     if (fs.existsSync(swaggerPath)) {
       Server.swagger(
         apiRouter,
@@ -53,10 +57,10 @@ export class ApiServer {
       );
     }
 
-    if (apiContext) {
-      this.app.use(apiContext, apiRouter);
-    } else {
+    if (!apiContext || apiContext === '/') {
       this.app.use(apiRouter);
+    } else {
+      this.app.use(apiContext, apiRouter);
     }
   }
 
@@ -64,8 +68,8 @@ export class ApiServer {
    * Start the server
    * @returns {Promise<any>}
    */
-  public async start(): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
+  public async start(): Promise<ApiServer> {
+    return new Promise<ApiServer>((resolve, reject) => {
       this.server = this.app.listen(this.PORT, (err: any) => {
         if (err) {
           return reject(err);
@@ -78,7 +82,7 @@ export class ApiServer {
         // tslint:disable-next-line:no-console
         console.log(`Listening to http://${address}:${addressInfo.port}`);
 
-        return resolve();
+        return resolve(this);
       });
     });
   }

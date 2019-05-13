@@ -50,7 +50,7 @@ describe('HelloWorldRandomService', () => {
       beforeEach(() => {
         return pactServer.addInteraction({
           state: 'base state',
-          uponReceiving: 'are request for a random name',
+          uponReceiving: 'a request for a random name',
           withRequest: {
             method: 'GET',
             path: '/api',
@@ -62,7 +62,10 @@ describe('HelloWorldRandomService', () => {
           willRespondWith: {
             status: 200,
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': Matchers.regex({
+                generate: 'application/json',
+                matcher: 'application/json.*'
+              })
             },
             body: {
               results: [{
