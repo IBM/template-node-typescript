@@ -10,7 +10,7 @@ podTemplate(
          workingDir: '/home/jenkins',
          envVars: [
             envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/'),
-            secretEnvVar(key: 'GIT_URL', secretName: ${env.JOB_NAME}, secretKey: 'url'),
+            secretEnvVar(key: 'GIT_URL', secretName: "${env.JOB_NAME}", secretKey: 'url'),
          ],
       ),
       containerTemplate(
@@ -38,7 +38,7 @@ podTemplate(
 ) {
     node(buildLabel) {
         container(name: 'node', shell: '/bin/bash') {
-            git credentialsId: ${env.JOB_NAME}, url: ${env.GIT_URL}
+            git credentialsId: "${env.JOB_NAME}", url: "${env.GIT_URL}"
             stage('Setup') {
                 sh '''
                     # Export project name and version to ./chart/env-config
