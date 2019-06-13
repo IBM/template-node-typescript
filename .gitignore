@@ -5,3 +5,5 @@ dist/
 coverage/
 logs/
 pacts/
+.bluemix/
+.helm/

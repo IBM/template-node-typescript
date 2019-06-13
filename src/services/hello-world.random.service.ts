@@ -17,7 +17,6 @@ class RandomUser {
 }
 
 @Singleton
-@Provides(HelloWorldApi)
 export class HelloWorldRandomService implements HelloWorldApi {
   logger: LoggerApi;
 
