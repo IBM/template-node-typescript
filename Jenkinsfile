@@ -38,11 +38,11 @@ podTemplate(
 ) {
     node(buildLabel) {
         container(name: 'node', shell: '/bin/bash') {
-            git credentialsId: 'template-node-typescript', url: 'https://github.ibm.com/garage-catalyst/template-node-typescript.git'
+            checkout scm
             stage('Setup') {
                 sh '''
-                    # Export project name and version to ./chart/env-config
-                    npm run --silent generate-exports | tee ./chart/env-config
+                    # Export project name and version to ./env-config
+                    npm run --silent generate-exports | tee ./env-config
                 '''
             }
             stage('Build') {
@@ -65,24 +65,24 @@ podTemplate(
         container(name: 'ibmcloud', shell: '/bin/bash') {
             stage('Build image') {
                 sh '''
-                    . ./chart/env-config
+                    . ./env-config
 
-                    npm i -g @garage-catalyst/ibmcloud-image-cli
+                    npm i -g @garage-catalyst/ibm-garage-cloud-cli
                 
                     echo "Building image: ${IMAGE_NAME}:${IMAGE_VERSION}-${IMAGE_BUILD_NUMBER}"
-                    ibmcloud-image build --image ${IMAGE_NAME} --ver ${IMAGE_VERSION} --buildNumber ${IMAGE_BUILD_NUMBER}
+                    igc build --image ${IMAGE_NAME} --ver ${IMAGE_VERSION} --buildNumber ${IMAGE_BUILD_NUMBER}
                 '''
             }
             stage('Deploy to CI env') {
                 sh '''
-                    . ./chart/env-config
+                    . ./env-config
                     
                     ENVIRONMENT_NAME=ci
 
-                    npm i -g @garage-catalyst/ibmcloud-image-cli
+                    npm i -g @garage-catalyst/ibm-garage-cloud-cli
                 
                     echo "Deploying image: ${IMAGE_NAME}:${IMAGE_VERSION}-${IMAGE_BUILD_NUMBER}"
-                    ibmcloud-image deploy --debug --image $IMAGE_NAME --ver $IMAGE_VERSION --buildNumber $IMAGE_BUILD_NUMBER --env $ENVIRONMENT_NAME
+                    igc deploy --debug --image $IMAGE_NAME --ver $IMAGE_VERSION --buildNumber $IMAGE_BUILD_NUMBER --namespace $ENVIRONMENT_NAME
                 '''
             }
         }

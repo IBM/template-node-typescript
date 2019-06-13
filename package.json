@@ -46,7 +46,8 @@
     "serve": "node dist/src",
     "upgrade-interactive": "npm-check --update",
     "pact:verify": "ts-node test/pact-verify",
-    "pact:publish": "pact publish -p ./pacts -c $npm_package_version -b $npm_package_pact_pactBrokerUrl"
+    "pact:publish": "pact publish -p ./pacts -c $npm_package_version -b $npm_package_pact_pactBrokerUrl",
+    "generate-exports": "echo \"export IMAGE_NAME=\\\"$npm_package_name\\\";\nexport IMAGE_VERSION=\\\"$npm_package_version\\\";\nexport IMAGE_BUILD_NUMBER=\\\"$BUILD_NUMBER\\\";\nexport START_TIME=\\\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\\\";\""
   },
   "author": "",
   "license": "ISC",
