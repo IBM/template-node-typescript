@@ -4,7 +4,7 @@ export const start = async (): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
     const apiServer = new ApiServer();
     apiServer.start()
-      .then(resolve)
+      .then(() => resolve())
       .catch(reject);
 
     const graceful = () => {

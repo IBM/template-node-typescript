@@ -29,7 +29,9 @@
     "providerBaseUrl": "",
     "pactBrokerUrl": "",
     "provider": "",
-    "pactUrls": ["pacts/hello-consumer-typescript-template.json"]
+    "pactUrls": [
+      "pacts/hello-consumer-typescript-template.json"
+    ]
   },
   "scripts": {
     "clean": "rimraf dist",
@@ -41,7 +43,7 @@
     "swagger": "swaggerGen -c ./swagger.config.json",
     "prestart": "npm run build",
     "start": "npm run serve",
-    "serve": "node dist",
+    "serve": "node dist/src",
     "upgrade-interactive": "npm-check --update",
     "pact:verify": "ts-node test/pact-verify",
     "pact:publish": "pact publish -p ./pacts -c $npm_package_version -b $npm_package_pact_pactBrokerUrl"
