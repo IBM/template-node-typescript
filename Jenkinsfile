@@ -38,7 +38,7 @@ podTemplate(
 ) {
     node(buildLabel) {
         container(name: 'node', shell: '/bin/bash') {
-            git credentialsId: "${env.JOB_NAME}", url: "${env.GIT_URL}"
+            git credentialsId: 'template-node-typescript', url: 'https://github.ibm.com/garage-catalyst/template-node-typescript.git'
             stage('Setup') {
                 sh '''
                     # Export project name and version to ./chart/env-config
