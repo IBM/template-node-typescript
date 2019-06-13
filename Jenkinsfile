@@ -10,7 +10,7 @@ podTemplate(
          workingDir: '/home/jenkins',
          envVars: [
             envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/'),
-            secretEnvVar(key: 'GIT_URL', secretName: "${env.JOB_NAME}", secretKey: 'url'),
+            secretEnvVar(key: 'GIT_URL', secretName: 'template-node-typescript', secretKey: 'url'),
          ],
       ),
       containerTemplate(
