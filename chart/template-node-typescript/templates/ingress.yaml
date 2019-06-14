@@ -26,14 +26,12 @@ spec:
 {{- end }}
   rules:
   {{- range .Values.ingress.hosts }}
-    - host: {{ include "template-node-typescript.host" .host }}
+    - host: {{ .host }}.{{ $.Values.namespace }}.{{ $.Values.cluster_name }}.{{ $.Values.region }}.{{ $.Values.domainRoot}}
       http:
         paths:
-        {{- range .paths }}
-          - path: {{ . }}
+          - path: {{ .path }}
             backend:
               serviceName: {{ $fullName }}
               servicePort: http
-        {{- end }}
   {{- end }}
 {{- end }}

@@ -32,5 +32,5 @@ Create chart name and version as used by the chart label.
 {{- end -}}
 
 {{- define "template-node-typescript.host" -}}
-{{- printf "%s.%s.%s" . $.Release.Namespace $.Values.cluster_name $.Values.region $.Values.domainRoot -}}
+{{- printf "%s.%s.%s" . .Release.Namespace $.Values.cluster_name $.Values.region $.Values.domainRoot -}}
 {{- end -}}
