@@ -58,7 +58,7 @@ podTemplate(
             }
             stage('Verify pact') {
                 sh '''
-                    npm run pactVerify
+                    npm run pact:verify
                 '''
             }
         }
