@@ -73,11 +73,11 @@ podTemplate(
                     igc build --image ${IMAGE_NAME} --ver ${IMAGE_VERSION} --buildNumber ${IMAGE_BUILD_NUMBER}
                 '''
             }
-            stage('Deploy to CI env') {
+            stage('Deploy to DEV env') {
                 sh '''
                     . ./env-config
                     
-                    ENVIRONMENT_NAME=ci
+                    ENVIRONMENT_NAME=dev
 
                     npm i -g @garage-catalyst/ibm-garage-cloud-cli
                 
