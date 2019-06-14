@@ -27,6 +27,7 @@ podTemplate(
             secretEnvVar(key: 'REGION', secretName: 'ibmcloud-apikey', secretKey: 'region'),
             secretEnvVar(key: 'CLUSTER_NAME', secretName: 'ibmcloud-apikey', secretKey: 'cluster_name'),
             envVar(key: 'CHART_NAME', value: 'template-node-typescript'),
+            envVar(key: 'CHART_ROOT', value: 'chart'),
             envVar(key: 'HOME', value: '/root'), // needed for the ibmcloud cli to find plugins
          ],
       ),
