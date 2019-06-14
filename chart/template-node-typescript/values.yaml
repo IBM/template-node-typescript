@@ -4,7 +4,9 @@
 
 replicaCount: 1
 
-domainRoot: us-south.containers.appdomain.cloud
+cluster_name: cluster
+region: us-south
+domainRoot: containers.appdomain.cloud
 
 image:
   repository: replace
