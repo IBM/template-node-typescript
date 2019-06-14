@@ -22,11 +22,11 @@ podTemplate(
          envVars: [
             envVar(key: 'DOCKER_CONFIG', value: '/home/jenkins/.docker/'),
             secretEnvVar(key: 'APIKEY', secretName: 'ibmcloud-apikey', secretKey: 'password'),
-            envVar(key: 'RESOURCE_GROUP', value: 'catalyst-team'),
-            envVar(key: 'REGISTRY_URL', value: 'us.icr.io'),
-            envVar(key: 'REGISTRY_NAMESPACE', value: 'catalyst-ns'),
-            envVar(key: 'REGION', value: 'us-south'),
-            envVar(key: 'CLUSTER_NAME', value: 'catalyst'),
+            secretEnvVar(key: 'RESOURCE_GROUP', secretName: 'ibmcloud-apikey', secretKey: 'resource_group'),
+            secretEnvVar(key: 'REGISTRY_URL', secretName: 'ibmcloud-apikey', secretKey: 'registry_url'),
+            secretEnvVar(key: 'REGISTRY_NAMESPACE', secretName: 'ibmcloud-apikey', secretKey: 'registry_namespace'),
+            secretEnvVar(key: 'REGION', secretName: 'ibmcloud-apikey', secretKey: 'us-south'),
+            secretEnvVar(key: 'CLUSTER_NAME', secretName: 'ibmcloud-apikey', secretKey: 'cluster_name'),
             envVar(key: 'HOME', value: '/root'), // needed for the ibmcloud cli to find plugins
          ],
       ),
