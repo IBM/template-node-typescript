@@ -25,13 +25,11 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    - host: {{ .host }}.{{ $.Values.namespace }}.{{ $.Values.cluster_name }}.{{ $.Values.region }}.{{ $.Values.domainRoot}}
+    - host: {{ .Values.host }}.{{ $.Values.namespace }}.{{ $.Values.cluster_name }}.{{ $.Values.region }}.{{ $.Values.domainRoot}}
       http:
         paths:
           - path: {{ .path }}
             backend:
               serviceName: {{ $fullName }}
               servicePort: http
-  {{- end }}
 {{- end }}

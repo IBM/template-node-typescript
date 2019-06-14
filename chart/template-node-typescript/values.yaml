@@ -4,6 +4,8 @@
 
 replicaCount: 1
 
+host: myhost
+namespace: dev
 cluster_name: cluster
 region: us-south
 domainRoot: containers.appdomain.cloud
