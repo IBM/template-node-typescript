@@ -13,6 +13,7 @@ domainRoot: containers.appdomain.cloud
 image:
   repository: replace
   tag: replace
+  secretName: default-us-icr-io
   pullPolicy: IfNotPresent
   port: 3000
 

@@ -19,10 +19,13 @@ spec:
         app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.secretName }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
           ports:
             - name: http
               containerPort: {{ .Values.image.port }}
