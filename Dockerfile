@@ -1,10 +1,10 @@
-FROM node:11.12.0-stretch-slim
+FROM registry.access.redhat.com/ubi8/nodejs-10
 
-COPY dist /home/node/dist
-COPY public /home/node/public
-COPY package.json /home/node
+COPY dist ${HOME}/dist
+COPY public ${HOME}/public
+COPY package.json ${HOME}
 
-WORKDIR /home/node
+WORKDIR ${HOME}
 
 RUN npm install --production
 
