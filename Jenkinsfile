@@ -202,13 +202,27 @@ podTemplate(
                     # Using 'upgrade --install" for rolling updates. Note that subsequent updates will occur in the same namespace the release is currently deployed in, ignoring the explicit--namespace argument".
                     echo -e "Dry run into: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
                     helm upgrade --install --debug --dry-run ${RELEASE_NAME} ${CHART_PATH} \
-                        --set image.repository=${IMAGE_REPOSITORY},image.tag=${IMAGE_VERSION},image.secretName="${ENVIRONMENT_NAME}-us-icr-io",cluster_name="${CLUSTER_NAME}",region="${REGION}",namespace="${ENVIRONMENT_NAME}",host="${IMAGE_NAME}" \
-                        --namespace ${ENVIRONMENT_NAME}
+                        --namespace ${ENVIRONMENT_NAME} \
+                        --set nameOverride=${IMAGE_NAME} \
+                        --set image.repository=${IMAGE_REPOSITORY} \
+                        --set image.tag=${IMAGE_VERSION} \
+                        --set image.secretName="${ENVIRONMENT_NAME}-us-icr-io" \
+                        --set cluster_name="${CLUSTER_NAME}" \
+                        --set region="${REGION}" \
+                        --set namespace="${ENVIRONMENT_NAME}" \
+                        --set host="${IMAGE_NAME}"
                     
                     echo -e "Deploying into: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
                     helm upgrade --install ${RELEASE_NAME} ${CHART_PATH} \
-                        --set image.repository=${IMAGE_REPOSITORY},image.tag=${IMAGE_VERSION},image.secretName="${ENVIRONMENT_NAME}-us-icr-io",cluster_name="${CLUSTER_NAME}",region="${REGION}",namespace="${ENVIRONMENT_NAME}",host="${IMAGE_NAME}" \
-                        --namespace ${ENVIRONMENT_NAME}
+                        --namespace ${ENVIRONMENT_NAME} \
+                        --set nameOverride=${IMAGE_NAME} \
+                        --set image.repository=${IMAGE_REPOSITORY} \
+                        --set image.tag=${IMAGE_VERSION} \
+                        --set image.secretName="${ENVIRONMENT_NAME}-us-icr-io" \
+                        --set cluster_name="${CLUSTER_NAME}" \
+                        --set region="${REGION}" \
+                        --set namespace="${ENVIRONMENT_NAME}" \
+                        --set host="${IMAGE_NAME}"
 
                     # ${SCRIPT_ROOT}/deploy-checkstatus.sh ${ENVIRONMENT_NAME} ${IMAGE_NAME} ${IMAGE_REPOSITORY} ${IMAGE_VERSION}
                 '''
