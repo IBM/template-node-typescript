@@ -111,10 +111,12 @@ elif [[ -n "$project_repo" ]]; then
     sed -i -r "s~    \"url\":.*~    \"url\": \"${project_repo}\"~g" ./package.json
     rm ./package.json-*
 
-    # Convert an ssh url to https. If it is already an https url then it will be left alone.
-    project_repo_url=$(echo ${project_repo} | sed "s~git@\(.*\):\(.*\)~https://\1/\2~g")
+    if [[ -f ./PIPELINE-template.md ]]; then
+        # Convert an ssh url to https. If it is already an https url then it will be left alone.
+        project_repo_url=$(echo ${project_repo} | sed "s~git@\(.*\):\(.*\)~https://\1/\2~g")
 
-    sed "s~REPO_URL~${project_repo_url}~g" ./PIPELINE-template.md > ./PIPELINE.md
+        sed "s~REPO_URL~${project_repo_url}~g" ./PIPELINE-template.md > ./PIPELINE.md
+    fi
 fi
 
 echo ""
