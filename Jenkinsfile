@@ -160,38 +160,15 @@ podTemplate(
 
                     echo "KUBECONFIG=${KUBECONFIG}"
 
-                    echo "Defining RELEASE_NAME by prefixing image (app) name with namespace if not 'default' as Helm needs unique release names across namespaces"
-                    if [[ "${ENVIRONMENT_NAME}" != "default" ]]; then
-                      RELEASE_NAME="${IMAGE_NAME}-${ENVIRONMENT_NAME}"
-                    else
-                      RELEASE_NAME="${IMAGE_NAME}"
-                    fi
+                    RELEASE_NAME="${IMAGE_NAME}"
                     echo "RELEASE_NAME: $RELEASE_NAME"
 
                     if [[ -n "${BUILD_NUMBER}" ]]; then
                       IMAGE_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
                     fi
-
-                    if [[ $(kubectl get secrets -n default | grep icr | wc -l) -eq 0 ]]; then
-                        ibmcloud ks cluster-pull-secret-apply --cluster ${CLUSTER_NAME}
-                    fi
-
-                    kubectl get namespace ${ENVIRONMENT_NAME}
-                    if [[ $? -ne 0 ]]; then
-                      kubectl create namespace ${ENVIRONMENT_NAME}
-                    fi
                     
-                    # Check to see if image pull secrets exist in the namespace
-                    if [[ $(kubectl get secrets -n ${ENVIRONMENT_NAME} | grep icr | wc -l) -eq 0 ]]; then
-                        echo "Creating image pull secrets in namespace ${ENVIRONMENT_NAME}"
-                        kubectl get secrets -n default | grep icr | sed "s/\\([A-Za-z-]*\\) *.*/\\1/g" | while read default_secret; do
-                            echo "Copying secret: $default_secret"
-                            kubectl get secret ${default_secret} -o yaml | sed "s/default/${ENVIRONMENT_NAME}/g" | kubectl -n ${ENVIRONMENT_NAME} create -f -
-                        done
-                    fi
-                    
-                    echo "INITIALIZING helm with upgrade"
-                    helm init --upgrade 1> /dev/null 2> /dev/null
+                    echo "INITIALIZING helm with client-only (no Tiller)"
+                    helm init --client-only 1> /dev/null 2> /dev/null
                     
                     echo "CHECKING CHART (lint)"
                     helm lint ${CHART_PATH}
@@ -200,8 +177,8 @@ podTemplate(
                     PIPELINE_IMAGE_URL="${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
 
                     # Using 'upgrade --install" for rolling updates. Note that subsequent updates will occur in the same namespace the release is currently deployed in, ignoring the explicit--namespace argument".
-                    echo -e "Dry run into: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
-                    helm upgrade --install --debug --dry-run ${RELEASE_NAME} ${CHART_PATH} \
+                    helm template ${CHART_PATH} \
+                        --name ${RELEASE_NAME} \
                         --namespace ${ENVIRONMENT_NAME} \
                         --set nameOverride=${IMAGE_NAME} \
                         --set image.repository=${IMAGE_REPOSITORY} \
@@ -210,19 +187,13 @@ podTemplate(
                         --set cluster_name="${CLUSTER_NAME}" \
                         --set region="${REGION}" \
                         --set namespace="${ENVIRONMENT_NAME}" \
-                        --set host="${IMAGE_NAME}"
+                        --set host="${IMAGE_NAME}" > ./release.yaml
+                    
+                    echo -e "Generated release yaml for: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
+                    cat ./release.yaml
                     
                     echo -e "Deploying into: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
-                    helm upgrade --install ${RELEASE_NAME} ${CHART_PATH} \
-                        --namespace ${ENVIRONMENT_NAME} \
-                        --set nameOverride=${IMAGE_NAME} \
-                        --set image.repository=${IMAGE_REPOSITORY} \
-                        --set image.tag=${IMAGE_VERSION} \
-                        --set image.secretName="${ENVIRONMENT_NAME}-us-icr-io" \
-                        --set cluster_name="${CLUSTER_NAME}" \
-                        --set region="${REGION}" \
-                        --set namespace="${ENVIRONMENT_NAME}" \
-                        --set host="${IMAGE_NAME}"
+                    kubectl apply -n ${ENVIRONMENT_NAME} -f ./release.yaml
 
                     # ${SCRIPT_ROOT}/deploy-checkstatus.sh ${ENVIRONMENT_NAME} ${IMAGE_NAME} ${IMAGE_REPOSITORY} ${IMAGE_VERSION}
                 '''
