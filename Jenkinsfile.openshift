@@ -1,5 +1,4 @@
 podTemplate(
-   label: buildLabel,
    cloud: 'openshift',
    containers: [
       containerTemplate(
