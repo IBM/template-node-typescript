@@ -15,7 +15,7 @@ podTemplate(
       ),
       containerTemplate(
          name: 'ibmcloud',
-         image: 'docker.io/garagecatalyst/ibmcloud-dev:1.0.3',
+         image: 'docker.io/garagecatalyst/ibmcloud-dev:1.0.4',
          ttyEnabled: true,
          command: '/bin/bash',
          workingDir: '/home/jenkins',
@@ -120,8 +120,6 @@ podTemplate(
                     
                     . ./env-config
 
-                    ibmcloud login -a ${APIURL} --apikey ${APIKEY} -r ${REGION} -g ${RESOURCE_GROUP}
-                    
                     echo "Checking registry namespace: ${REGISTRY_NAMESPACE}"
                     NS=$( ibmcloud cr namespaces | grep ${REGISTRY_NAMESPACE} ||: )
                     if [[ -z "${NS}" ]]; then
@@ -156,17 +154,6 @@ podTemplate(
                     ENVIRONMENT_NAME=dev
 
                     CHART_PATH="${CHART_ROOT}/${CHART_NAME}"
-
-                    mkdir -p ${TMP_DIR}
-                    ibmcloud -version
-
-                    ibmcloud login -a ${APIURL} --apikey ${APIKEY} -g ${RESOURCE_GROUP} -r ${REGION}
-                    
-                    # Turn off check-version so it doesn't spit out extra info during cluster-config
-                    ibmcloud config --check-version=false
-                    ibmcloud cs cluster-config --cluster ${CLUSTER_NAME} --export > ${TMP_DIR}/.kubeconfig
-
-                    . ${TMP_DIR}/.kubeconfig
 
                     echo "KUBECONFIG=${KUBECONFIG}"
 
