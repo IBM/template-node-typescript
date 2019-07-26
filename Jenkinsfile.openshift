@@ -15,7 +15,7 @@ podTemplate(
       ),
       containerTemplate(
          name: 'ibmcloud',
-         image: 'docker.io/garagecatalyst/ibmcloud-dev:1.0.4',
+         image: 'docker.io/garagecatalyst/ibmcloud-dev:1.0.5',
          ttyEnabled: true,
          command: '/bin/bash',
          workingDir: '/home/jenkins',
@@ -28,6 +28,8 @@ podTemplate(
             secretEnvVar(key: 'REGISTRY_NAMESPACE', secretName: 'ibmcloud-apikey', secretKey: 'registry_namespace'),
             secretEnvVar(key: 'REGION', secretName: 'ibmcloud-apikey', secretKey: 'region'),
             secretEnvVar(key: 'CLUSTER_NAME', secretName: 'ibmcloud-apikey', secretKey: 'cluster_name'),
+            secretEnvVar(key: 'CLUSTER_TYPE', secretName: 'ibmcloud-apikey', secretKey: 'cluster_type'),
+            secretEnvVar(key: 'SERVER_URL', secretName: 'ibmcloud-apikey', secretKey: 'server_url'),
             envVar(key: 'CHART_NAME', value: 'template-node-typescript'),
             envVar(key: 'CHART_ROOT', value: 'chart'),
             envVar(key: 'TMP_DIR', value: '.tmp'),
