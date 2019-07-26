@@ -1,5 +1,6 @@
 def buildLabel = "agent.${env.JOB_NAME}.${env.BUILD_NUMBER}".replace('-', '_').replace('/', '_')
 podTemplate(
+   label: buildLabel,
    cloud: 'openshift',
    containers: [
       containerTemplate(
@@ -37,7 +38,7 @@ podTemplate(
    ],
    serviceAccount: 'jenkins'
 ) {
-    node(POD_LABEL) {
+    node(buildLabel) {
         container(name: 'node', shell: '/bin/bash') {
             checkout scm
             stage('Setup') {
