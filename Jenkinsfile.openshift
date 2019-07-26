@@ -32,7 +32,7 @@ podTemplate(
             envVar(key: 'CHART_ROOT', value: 'chart'),
             envVar(key: 'TMP_DIR', value: '.tmp'),
             envVar(key: 'BUILD_NUMBER', value: "${env.BUILD_NUMBER}"),
-            envVar(key: 'HOME', value: '/root'), // needed for the ibmcloud cli to find plugins
+            envVar(key: 'HOME', value: '/home/devops'), // needed for the ibmcloud cli to find plugins
          ],
       ),
    ],
@@ -43,7 +43,7 @@ podTemplate(
             checkout scm
             stage('Setup') {
                 sh '''#!/bin/bash
-                    set +x
+                    set -x
                     # Export project name, version, and build number to ./env-config
                     npm run env | grep "^npm_package_name" | sed "s/npm_package_name/IMAGE_NAME/g"  > ./env-config
                     npm run env | grep "^npm_package_version" | sed "s/npm_package_version/IMAGE_VERSION/g" >> ./env-config
@@ -51,20 +51,20 @@ podTemplate(
             }
             stage('Build') {
                 sh '''#!/bin/bash
-                    set +x
+                    set -x
                     npm install
                     npm run build
                 '''
             }
             stage('Test') {
                 sh '''#!/bin/bash
-                    set +x
+                    set -x
                     npm test
                 '''
             }
             stage('Verify pact') {
                 sh '''#!/bin/bash
-                    set +x
+                    set -x
                     npm run pact:verify
                 '''
             }
@@ -72,6 +72,8 @@ podTemplate(
         container(name: 'ibmcloud', shell: '/bin/bash') {
             stage('Verify environment') {
                 sh '''#!/bin/bash
+                    set -x
+                    
                     . ./env-config
 
                     if [[ -z "${APIKEY}" ]]; then
@@ -112,6 +114,8 @@ podTemplate(
             }
             stage('Build image') {
                 sh '''#!/bin/bash
+                    set -x
+                    
                     . ./env-config
 
                     ibmcloud login -a ${APIURL} --apikey ${APIKEY} -r ${REGION} -g ${RESOURCE_GROUP}
@@ -143,6 +147,8 @@ podTemplate(
             }
             stage('Deploy to DEV env') {
                 sh '''#!/bin/bash
+                    set -x
+
                     . ./env-config
                     
                     ENVIRONMENT_NAME=dev
