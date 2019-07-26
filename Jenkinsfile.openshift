@@ -15,7 +15,7 @@ podTemplate(
       ),
       containerTemplate(
          name: 'ibmcloud',
-         image: 'docker.io/garagecatalyst/ibmcloud-dev:1.0.1',
+         image: 'docker.io/garagecatalyst/ibmcloud-dev:1.0.2',
          ttyEnabled: true,
          command: '/bin/bash',
          workingDir: '/home/jenkins',
@@ -43,6 +43,7 @@ podTemplate(
             checkout scm
             stage('Setup') {
                 sh '''#!/bin/bash
+                    set +x
                     # Export project name, version, and build number to ./env-config
                     npm run env | grep "^npm_package_name" | sed "s/npm_package_name/IMAGE_NAME/g"  > ./env-config
                     npm run env | grep "^npm_package_version" | sed "s/npm_package_version/IMAGE_VERSION/g" >> ./env-config
@@ -50,17 +51,20 @@ podTemplate(
             }
             stage('Build') {
                 sh '''#!/bin/bash
+                    set +x
                     npm install
                     npm run build
                 '''
             }
             stage('Test') {
                 sh '''#!/bin/bash
+                    set +x
                     npm test
                 '''
             }
             stage('Verify pact') {
                 sh '''#!/bin/bash
+                    set +x
                     npm run pact:verify
                 '''
             }
