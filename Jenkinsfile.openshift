@@ -185,7 +185,7 @@ podTemplate(
                         --set image.repository=${IMAGE_REPOSITORY} \
                         --set image.tag=${IMAGE_VERSION} \
                         --set image.secretName="${ENVIRONMENT_NAME}-us-icr-io" \
-                        --set ingress_subdomain="${INGRESS_SUBDOMAIN}"] \
+                        --set ingress_subdomain="${INGRESS_SUBDOMAIN}" \
                         --set host="${IMAGE_NAME}" > ./release.yaml
                     
                     echo -e "Generated release yaml for: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
