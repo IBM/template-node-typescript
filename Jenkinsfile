@@ -198,40 +198,6 @@ podTemplate(
                     # ${SCRIPT_ROOT}/deploy-checkstatus.sh ${ENVIRONMENT_NAME} ${IMAGE_NAME} ${IMAGE_REPOSITORY} ${IMAGE_VERSION}
                 '''
             }
-            stage('Health Check') {
-                sh '''#!/bin/bash
-                    . ./env-config
-                    
-                    ENVIRONMENT_NAME=dev
-
-                    ibmcloud -version
-                    ibmcloud login -a ${APIURL} --apikey ${APIKEY} -g ${RESOURCE_GROUP} -r ${REGION}
-                    
-                    # Turn off check-version so it doesn't spit out extra info during cluster-config
-                    ibmcloud config --check-version=false
-                    ibmcloud cs cluster-config --cluster ${CLUSTER_NAME} --export > ${TMP_DIR}/.kubeconfig
-
-                    . ${TMP_DIR}/.kubeconfig
-
-                    echo "KUBECONFIG=${KUBECONFIG}"
-
-                    INGRESS_NAME="${IMAGE_NAME}"
-                    INGRESS_HOST=$(kubectl get ingress/${INGRESS_NAME} --namespace ${ENVIRONMENT_NAME} --output=jsonpath='{ .spec.rules[0].host }')
-                    PORT='80'
-
-                    # sleep for 10 seconds to allow enough time for the server to start
-                    sleep 30
-
-                    if [ $(curl -sL -w "%{http_code}\\n" "http://${INGRESS_HOST}:${PORT}/health" -o /dev/null --connect-timeout 3 --max-time 5 --retry 3 --retry-max-time 30) == "200" ]; then
-                        echo "Successfully reached health endpoint: http://${INGRESS_HOST}:${PORT}/health"
-                    echo "====================================================================="
-                        else
-                    echo "Could not reach health endpoint: http://${INGRESS_HOST}:${PORT}/health"
-                        exit 1;
-                    fi;
-
-                '''
-            }
         }
     }
 }
