@@ -32,5 +32,13 @@ Create chart name and version as used by the chart label.
 {{- end -}}
 
 {{- define "template-node-typescript.host" -}}
-{{- printf "%s.%s.%s" . .Release.Namespace $.Values.cluster_name $.Values.region $.Values.domainRoot -}}
+{{- if .Values.host -}}
+{{- printf "%s.%s" .Values.host .Values.ingress_subdomain -}}
+{{- else -}}
+{{- if .Values.nameOverride -}}
+{{- printf "%s.%s" .Values.nameOverride .Values.ingress_subdomain -}}
+{{- else -}}
+{{- printf "%s.%s" .Chart.Name .Values.ingress_subdomain -}}
+{{- end -}}
+{{- end -}}
 {{- end -}}

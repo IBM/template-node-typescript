@@ -25,7 +25,7 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-    - host: {{ .Values.host }}.{{ $.Values.namespace }}.{{ $.Values.cluster_name }}.{{ $.Values.region }}.{{ $.Values.domainRoot}}
+    - host: {{ include "template-node-typescript.host" . }}
       http:
         paths:
           - path: {{ .path }}

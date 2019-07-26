@@ -1,7 +1,8 @@
 def buildLabel = "agent.${env.JOB_NAME}.${env.BUILD_NUMBER}".replace('-', '_').replace('/', '_')
+def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
 podTemplate(
    label: buildLabel,
-   cloud: 'openshift',
+   cloud: cloudName,
    containers: [
       containerTemplate(
          name: 'node',
@@ -183,9 +184,7 @@ podTemplate(
                         --set image.repository=${IMAGE_REPOSITORY} \
                         --set image.tag=${IMAGE_VERSION} \
                         --set image.secretName="${ENVIRONMENT_NAME}-us-icr-io" \
-                        --set cluster_name="${CLUSTER_NAME}" \
-                        --set region="${REGION}" \
-                        --set namespace="${ENVIRONMENT_NAME}" \
+                        --set ingress_subdomain="${ENVIRONMENT_NAME}.${CLUSTER_NAME}.${REGION}.containers.appdomain.cloud"
                         --set host="${IMAGE_NAME}" > ./release.yaml
                     
                     echo -e "Generated release yaml for: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."

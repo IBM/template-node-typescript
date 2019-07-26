@@ -19,8 +19,10 @@ spec:
         app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.image.secretName }}
       imagePullSecrets:
         - name: {{ .Values.image.secretName }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
