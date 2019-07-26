@@ -74,6 +74,8 @@ podTemplate(
                 sh '''#!/bin/bash
                     set -x
                     
+                    whoami
+                    
                     . ./env-config
 
                     if [[ -z "${APIKEY}" ]]; then
