@@ -1,0 +1,50 @@
+{
+  "consumer": {
+    "name": "typescript-template"
+  },
+  "provider": {
+    "name": "randomuser.me"
+  },
+  "interactions": [
+    {
+      "description": "a request for a random name",
+      "providerState": "base state",
+      "request": {
+        "method": "GET",
+        "path": "/api",
+        "headers": {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "results": [
+            {
+              "name": {
+                "title": "mrs",
+                "first": "rolf",
+                "last": "hegdal"
+              }
+            }
+          ]
+        },
+        "matchingRules": {
+          "$.headers.Content-Type": {
+            "match": "regex",
+            "regex": "application\\/json.*"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}

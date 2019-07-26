@@ -1,0 +1,57 @@
+{
+  "consumer": {
+    "name": "hello-consumer"
+  },
+  "provider": {
+    "name": "typescript-template"
+  },
+  "interactions": [
+    {
+      "description": "a request with no name",
+      "providerState": "base state",
+      "request": {
+        "method": "GET",
+        "path": "/hello"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/html"
+        },
+        "body": "Hello, World!",
+        "matchingRules": {
+          "$.headers.Content-Type": {
+            "match": "regex",
+            "regex": "text\\/html.*"
+          }
+        }
+      }
+    },
+    {
+      "description": "a request with a name",
+      "providerState": "base state",
+      "request": {
+        "method": "GET",
+        "path": "/hello/Juan"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/html"
+        },
+        "body": "Hello, Juan!",
+        "matchingRules": {
+          "$.headers.Content-Type": {
+            "match": "regex",
+            "regex": "text\\/html.*"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
