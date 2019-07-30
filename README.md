@@ -34,6 +34,9 @@ The starter kit provides the following features:
 
 Install the latest [Node.js](https://nodejs.org/en/download/) 6+ LTS version.
 
+After you have created a new git repo from this git template, remember to rename the project.
+Edit `package.json` and change the default name to the name you used to create the template.
+
 Once the Node toolchain has been installed, you can download the project dependencies with:
 
 ```bash
