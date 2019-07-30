@@ -1,28 +1,74 @@
-# Node/Typescript Starter Kit
+<p align="center">
+    <a href="http://kitura.io/">
+        <img src="https://landscape.cncf.io/logos/ibm-member.svg" height="100" alt="IBM Cloud">
+    </a>
+</p>
 
-This is a template repository for a Node/Typescript-based BFF or micro-service.
+<p align="center">
+    <a href="https://cloud.ibm.com">
+    <img src="https://img.shields.io/badge/IBM%20Cloud-powered-blue.svg" alt="IBM Cloud">
+    </a>
+    <img src="https://img.shields.io/badge/platform-node-lightgrey.svg?style=flat" alt="platform">
+    <img src="https://img.shields.io/badge/license-Apache2-blue.svg?style=flat" alt="Apache 2">
+</p>
 
-## Getting started
+# TypeScript Microservice or Backend for Frontend with Node.js
 
-1. Click the 'Use this template' button above or [this link](./generate) to generate a new repository 
-from this template.
-2. Clone the newly created template to your computer
-3. Update the project name in the `project.json` file and update the README with the following steps,
-run from the root of your project directory:
-```bash
-mv README.md STARTER-KIT.md
-echo "# {project name}" > README.md
-```
-4. Add and commit the changes to your repo.
+This Starter Kit Template can be the foundation of a TypeScript Node.js Microservice or Backend for Frontend.
+
 
 ## Features
 
 The starter kit provides the following features:
 
+- Built with [TypeScript](https://www.typescriptlang.org/)
 - REST services using `typescript-rest` decorators
 - Swagger documentation using `typescript-rest-swagger`
 - Dependency injection using `typescript-ioc` decorators
 - Logging using `bunyan`
-- TDD environment with `jest`
-- Pact testing
-- DevOps pipeline
+- TDD environment with [Jest](https://jestjs.io/)
+- Pact testing [Pact](https://docs.pact.io/)
+- Jenkins DevOps pipeline that support OpenShift or IKS deployment with Catalyst
+
+#### Native Application Development
+
+Install the latest [Node.js](https://nodejs.org/en/download/) 6+ LTS version.
+
+Once the Node toolchain has been installed, you can download the project dependencies with:
+
+```bash
+npm install
+npm run build
+npm run start
+```
+
+### Deploying 
+
+Make sure you are logged into the IBM Cloud using the IBM Cloud CLI and have access 
+to you development cluster.
+
+```$bash
+npm i -g @garage-catalyst/ibm-garage-cloud-cli
+ibmcloud login -a cloud.ibm.com -r <region> -g <resource group>
+ibmcloud ks cluster-config --cluster <cluster-name>
+kubectl get nodes
+
+```
+
+Use the IBM Garage for Cloud CLI to register the GIT Repo with Jenkins environment 
+```$bash
+igc register
+```
+
+## Next Steps
+
+* Learn more about augmenting your Node.js applications on IBM Cloud with the [Node Programming Guide](https://cloud.ibm.com/docs/node?topic=nodejs-getting-started).
+
+## License
+
+This sample application is licensed under the Apache License, Version 2. Separate third-party code objects invoked within this code pattern are licensed by their respective providers pursuant to their own separate licenses. Contributions are subject to the [Developer Certificate of Origin, Version 1.1](https://developercertificate.org/) and the [Apache License, Version 2](https://www.apache.org/licenses/LICENSE-2.0.txt).
+
+[Apache License FAQ](https://www.apache.org/foundation/license-faq.html#WhatDoesItMEAN)
+
+
+
