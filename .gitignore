@@ -4,5 +4,5 @@ node_modules/
 dist/
 coverage/
 logs/
-.bluemix/
 .helm/
+pipeline-build-config.json
