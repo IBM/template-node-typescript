@@ -203,17 +203,6 @@ podTemplate(
                     
                     ENVIRONMENT_NAME=dev
 
-                    ibmcloud -version
-                    ibmcloud login -a ${APIURL} --apikey ${APIKEY} -g ${RESOURCE_GROUP} -r ${REGION}
-                    
-                    # Turn off check-version so it doesn't spit out extra info during cluster-config
-                    ibmcloud config --check-version=false
-                    ibmcloud cs cluster-config --cluster ${CLUSTER_NAME} --export > ${TMP_DIR}/.kubeconfig
-
-                    . ${TMP_DIR}/.kubeconfig
-
-                    echo "KUBECONFIG=${KUBECONFIG}"
-
                     INGRESS_NAME="${IMAGE_NAME}"
                     INGRESS_HOST=$(kubectl get ingress/${INGRESS_NAME} --namespace ${ENVIRONMENT_NAME} --output=jsonpath='{ .spec.rules[0].host }')
                     PORT='80'
