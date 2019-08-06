@@ -1,40 +1,54 @@
-def buildLabel = "agent.${env.JOB_NAME}.${env.BUILD_NUMBER}".replace('-', '_').replace('/', '_')
+/*
+ * This is a vanilla Jenkins pipeline that relies on the Jenkins kubernetes plugin to dynamically provision agents for
+ * the build containers.
+ *
+ * The individual containers are defined in the `jenkins-pod-template.yaml` and the containers are referenced by name
+ * in the `container()` blocks. The underlying pod definition expects certain kube Secrets and ConfigMap objects to
+ * have been created in order for the Pod to run. See `jenkins-pod-template.yaml` for more information.
+ * 
+ * The cloudName variable is set dynamically based on the existance/value of env.CLOUD_NAME which allows this pipeline
+ * to run in both Kubernetes and OpenShift environments.
+ */
+
+def buildLabel = "agent.${env.JOB_NAME.substring(0, 23)}.${env.BUILD_NUMBER}".replace('-', '_').replace('/', '_')
 def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
 podTemplate(
    label: buildLabel,
    cloud: cloudName,
-   containers: [
-      containerTemplate(
-         name: 'node',
-         image: 'node:11-stretch',
-         ttyEnabled: true,
-         command: '/bin/bash'
-      ),
-      containerTemplate(
-         name: 'ibmcloud',
-         image: 'docker.io/garagecatalyst/ibmcloud-dev:1.0.5',
-         ttyEnabled: true,
-         command: '/bin/bash',
-         envVars: [
-            envVar(key: 'APIURL', value: 'https://cloud.ibm.com'),
-            secretEnvVar(key: 'APIKEY', secretName: 'ibmcloud-apikey', secretKey: 'password'),
-            secretEnvVar(key: 'RESOURCE_GROUP', secretName: 'ibmcloud-apikey', secretKey: 'resource_group'),
-            secretEnvVar(key: 'REGISTRY_URL', secretName: 'ibmcloud-apikey', secretKey: 'registry_url'),
-            secretEnvVar(key: 'REGISTRY_NAMESPACE', secretName: 'ibmcloud-apikey', secretKey: 'registry_namespace'),
-            secretEnvVar(key: 'REGION', secretName: 'ibmcloud-apikey', secretKey: 'region'),
-            secretEnvVar(key: 'CLUSTER_NAME', secretName: 'ibmcloud-apikey', secretKey: 'cluster_name'),
-            secretEnvVar(key: 'CLUSTER_TYPE', secretName: 'ibmcloud-apikey', secretKey: 'cluster_type'),
-            secretEnvVar(key: 'SERVER_URL', secretName: 'ibmcloud-apikey', secretKey: 'server_url'),
-            secretEnvVar(key: 'INGRESS_SUBDOMAIN', secretName: 'ibmcloud-apikey', secretKey: 'ingress_subdomain'),
-            envVar(key: 'CHART_NAME', value: 'template-node-typescript'),
-            envVar(key: 'CHART_ROOT', value: 'chart'),
-            envVar(key: 'TMP_DIR', value: '.tmp'),
-            envVar(key: 'BUILD_NUMBER', value: "${env.BUILD_NUMBER}"),
-            envVar(key: 'HOME', value: '/home/devops'), // needed for the ibmcloud cli to find plugins
-         ],
-      ),
-   ],
-   serviceAccount: 'jenkins'
+   yaml: """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins
+  containers:
+    - name: node
+      image: node:11-stretch
+      tty: true
+      command: ["/bin/bash"]
+    - name: ibmcloud
+      image: docker.io/garagecatalyst/ibmcloud-dev:1.0.5
+      tty: true
+      command: ["/bin/bash"]
+      envFrom:
+        - configMapRef:
+            name: ibmcloud-config
+        - secretRef:
+            name: ibmcloud-apikey
+        - configMapRef:
+            name: pactbroker-config
+            optional: true
+      env:
+        - name: CHART_NAME
+          value: template-node-typescript
+        - name: CHART_ROOT
+          value: chart
+        - name: TMP_DIR
+          value: .tmp
+        - name: HOME
+          value: /home/devops
+        - name: BUILD_NUMBER
+          value: ${env.BUILD_NUMBER}
+"""
 ) {
     node(buildLabel) {
         container(name: 'node', shell: '/bin/bash') {
@@ -45,6 +59,7 @@ podTemplate(
                     # Export project name, version, and build number to ./env-config
                     npm run env | grep "^npm_package_name" | sed "s/npm_package_name/IMAGE_NAME/g"  > ./env-config
                     npm run env | grep "^npm_package_version" | sed "s/npm_package_version/IMAGE_VERSION/g" >> ./env-config
+                    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ./env-config
                 '''
             }
             stage('Build') {
