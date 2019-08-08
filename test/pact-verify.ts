@@ -1,4 +1,5 @@
 import * as path from 'path';
+import fs = require('fs');
 import {Verifier, VerifierOptions} from '@pact-foundation/pact';
 import * as yargs from 'yargs';
 import {buildApiServer} from "./helper";
@@ -15,17 +16,19 @@ const argv = yargs.options({
     }
 }).argv;
 
-function buildOptions(): VerifierOptions {
+const pactBrokerUrl = process.env.PACTBROKER_URL || opts.pactBrokerUrl;
+
+async function buildOptions(): Promise<VerifierOptions> {
     const options: VerifierOptions = Object.assign(
-        {},
-        opts,
-        argv,
-        opts.pactBrokerUrl
-            ? {}
-            : {pactUrls: [path.join(process.cwd(), 'pacts/hello-consumer-typescript-template.json')]},
-        opts.provider
-            ? {}
-            : {provider: config.name}
+      {},
+      opts,
+      argv,
+      pactBrokerUrl
+        ? {pactBrokerUrl}
+        : {pactUrls: await listPactFiles(path.join(process.cwd(), 'pacts'))},
+      opts.provider
+        ? {provider: opts.provider}
+        : {provider: config.name}
     );
 
     console.log('Pact verification options', options);
@@ -33,12 +36,25 @@ function buildOptions(): VerifierOptions {
     return options;
 }
 
+async function listPactFiles(pactDir: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+        fs.readdir(pactDir, (err, items) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            resolve(items.map(item => path.join(pactDir, item)));
+        });
+    });
+}
+
 async function verifyPact() {
     console.log('Starting server');
     const server: ApiServer = await buildApiServer().start();
 
     try {
-        await new Verifier().verifyProvider(buildOptions());
+        await new Verifier().verifyProvider(await buildOptions());
     } finally {
         await server.stop();
     }
