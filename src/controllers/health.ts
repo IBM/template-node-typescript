@@ -1,5 +1,5 @@
 import {AutoWired, Singleton} from 'typescript-ioc';
-import {GET, Path} from 'typescript-rest';
+import {GET, Path,Accept,ContextAccept} from 'typescript-rest';
 
 @AutoWired
 @Singleton
@@ -8,6 +8,6 @@ export class Health {
 
   @GET
   async healthCheck(): Promise<string> {
-    return 'OK';
+    return "{status: 'UP'}";
   }
 }
