@@ -27,6 +27,10 @@ spec:
       tty: true
       command: ["/bin/bash"]
       workingDir: ${workingDir}
+      envFrom:
+        - configMapRef:
+            name: pactbroker-config
+            optional: true
       env:
         - name: HOME
           value: ${workingDir}
@@ -40,9 +44,6 @@ spec:
             name: ibmcloud-config
         - secretRef:
             name: ibmcloud-apikey
-        - configMapRef:
-            name: pactbroker-config
-            optional: true
       env:
         - name: CHART_NAME
           value: template-node-typescript
@@ -79,6 +80,12 @@ spec:
                 sh '''#!/bin/bash
                     set -x
                     npm test
+                '''
+            }
+            stage('Publish pacts') {
+                sh '''#!/bin/bash
+                    set -x
+                    npm run pact:publish
                 '''
             }
             stage('Verify pact') {
