@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
     helm.sh/chart: {{ include "template-node-typescript.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:

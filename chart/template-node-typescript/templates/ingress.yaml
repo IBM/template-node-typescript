@@ -8,21 +8,17 @@ metadata:
     app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
     helm.sh/chart: {{ include "template-node-typescript.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app: {{ .Release.Name }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.ingress.tls }}
+{{- if .Values.ingress.tlsSecretName }}
   tls:
-  {{- range .Values.ingress.tls }}
     - hosts:
-      {{- range .hosts }}
-        - {{ . | quote }}
-      {{- end }}
-      secretName: {{ .secretName }}
-  {{- end }}
+        - {{ include "template-node-typescript.host" . }}
+      secretName: {{ .Values.ingress.tlsSecretName }}
 {{- end }}
   rules:
     - host: {{ include "template-node-typescript.host" . }}

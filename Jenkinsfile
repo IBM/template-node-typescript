@@ -211,8 +211,6 @@ spec:
                     IMAGE_REPOSITORY="${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}"
                     PIPELINE_IMAGE_URL="${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
 
-                    echo "${ENVIRONMENT_NAME}.${INGRESS_SUBDOMAIN}"
-
                     # Using 'upgrade --install" for rolling updates. Note that subsequent updates will occur in the same namespace the release is currently deployed in, ignoring the explicit--namespace argument".
                     helm template ${CHART_PATH} \
                         --name ${RELEASE_NAME} \
@@ -220,9 +218,7 @@ spec:
                         --set nameOverride=${IMAGE_NAME} \
                         --set image.repository=${IMAGE_REPOSITORY} \
                         --set image.tag=${IMAGE_VERSION} \
-                        --set image.secretName="${ENVIRONMENT_NAME}-us-icr-io" \
-                        --set ingress_subdomain="${ENVIRONMENT_NAME}.${INGRESS_SUBDOMAIN}" \
-                        --set host="${IMAGE_NAME}" > ./release.yaml
+                        --set ingress.subdomain="${INGRESS_SUBDOMAIN}" > ./release.yaml
                     
                     echo -e "Generated release yaml for: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
                     cat ./release.yaml
