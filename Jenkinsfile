@@ -12,6 +12,7 @@
 
 def buildLabel = "agent.${env.JOB_NAME.substring(0, 23)}.${env.BUILD_NUMBER}".replace('-', '_').replace('/', '_')
 def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
+def workingDir = env.CLOUD_NAME == "openshift" ? "/home/jenkins" : "/home/jenkins/agent"
 podTemplate(
    label: buildLabel,
    cloud: cloudName,
@@ -25,10 +26,15 @@ spec:
       image: node:11-stretch
       tty: true
       command: ["/bin/bash"]
+      workingDir: ${workingDir}
+      env:
+        - name: HOME
+          value: ${workingDir}
     - name: ibmcloud
-      image: docker.io/garagecatalyst/ibmcloud-dev:1.0.5
+      image: docker.io/garagecatalyst/ibmcloud-dev:1.0.7
       tty: true
       command: ["/bin/bash"]
+      workingDir: ${workingDir}
       envFrom:
         - configMapRef:
             name: ibmcloud-config
