@@ -31,6 +31,12 @@ spec:
         - configMapRef:
             name: pactbroker-config
             optional: true
+        - configMapRef:
+            name: sonarqube-config
+            optional: true
+        - secretRef:
+            name: sonarqube-access
+            optional: true
       env:
         - name: HOME
           value: ${workingDir}
@@ -92,6 +98,12 @@ spec:
                 sh '''#!/bin/bash
                     set -x
                     npm run pact:verify
+                '''
+            }
+            stage('Sonar scan') {
+                sh '''#!/bin/bash
+                    set -x
+                    npm run sonarqube:scan
                 '''
             }
         }

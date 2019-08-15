@@ -1,6 +1,7 @@
 {
   "name": "template-node-typescript",
   "version": "1.0.0",
+  "org": "my-org",
   "description": "",
   "main": "index.js",
   "config": {
@@ -42,7 +43,8 @@
     "serve": "node dist/src",
     "upgrade-interactive": "npm-check --update",
     "pact:verify": "ts-node test/pact-verify",
-    "pact:publish": "ts-node test/pact-publish"
+    "pact:publish": "ts-node test/pact-publish",
+    "sonarqube:scan": "ts-node test/sonarqube-scan"
   },
   "author": "",
   "license": "ISC",
@@ -74,6 +76,7 @@
     "jest-plugin-context": "^2.9.0",
     "npm-check": "^5.9.0",
     "rimraf": "^2.6.3",
+    "sonarqube-scanner": "^2.5.0",
     "supertest": "^4.0.2",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.1.0",
