@@ -42,9 +42,9 @@ spec:
               port: http
           env:
             - name: INGRESS_HOST
-              value: {{ include "template-node-typescript.host" . }}
+              value: {{ include "stater-kit-chart.host" . }}
             - name: PROTOCOLS
-              value: {{ include "template-node-typescript.protocols" . }}
+              value: {{ include "stater-kit-chart.protocols" . }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
