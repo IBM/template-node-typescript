@@ -1,11 +1,13 @@
 import * as express from 'express';
 import {Server} from 'typescript-rest';
-import * as fs from 'fs';
-import * as http from 'http';
-import * as path from 'path';
-import * as cors from 'cors';
-import {AddressInfo} from 'net';
 import {Config, Container} from 'typescript-ioc';
+import fs = require('fs');
+import http = require('http');
+import path = require('path');
+import cors = require('cors');
+import {AddressInfo} from 'net';
+
+import {parseCsvString} from './util/string-util';
 import * as npmPackage from '../package.json';
 
 const config = npmPackage.config || {
@@ -50,8 +52,8 @@ export class ApiServer {
         apiRouter,
         {
           filePath: swaggerPath,
-          schemes: [config.protocol],
-          host: `${config.host}:${config.port}`,
+          schemes: this.swaggerProtocols,
+          host: this.swaggerHost,
           endpoint: '/api-docs'
         },
       );
@@ -114,4 +116,13 @@ export class ApiServer {
   public get<T>(source: Function): T {
     return Container.get(source);
   }
+
+  get swaggerProtocols(): string[] {
+    return parseCsvString(process.env.PROTOCOLS, 'http');
+  }
+
+  get swaggerHost(): string {
+    return process.env.INGRESS_HOST || `localhost:${this.PORT}`;
+  }
 }
+

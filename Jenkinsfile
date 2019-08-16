@@ -218,6 +218,7 @@ spec:
                         --set nameOverride=${IMAGE_NAME} \
                         --set image.repository=${IMAGE_REPOSITORY} \
                         --set image.tag=${IMAGE_VERSION} \
+                        --set ingress.tlsSecretName="${TLS_SECRET_NAME}" \
                         --set ingress.subdomain="${INGRESS_SUBDOMAIN}" > ./release.yaml
                     
                     echo -e "Generated release yaml for: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."

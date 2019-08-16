@@ -40,3 +40,20 @@ Create chart name and version as used by the chart label.
 {{- printf "%s.%s" $host .Values.ingress.subdomain -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "template-node-typescript.url" -}}
+{{- $host := include "template-node-typescript.host" . -}}
+{{- if .Values.ingress.tlsSecretName -}}
+{{- printf "https://%s" $host -}}
+{{- else -}}
+{{- printf "http://%s" $host -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "template-node-typescript.protocols" -}}
+{{- if .Values.ingress.tlsSecretName -}}
+{{- printf "%s,%s" "http" "https" -}}
+{{- else -}}
+{{- printf "%s" "http" -}}
+{{- end -}}
+{{- end -}}
