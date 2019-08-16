@@ -52,7 +52,7 @@ spec:
             name: ibmcloud-apikey
       env:
         - name: CHART_NAME
-          value: template-node-typescript
+          value: starter-kit-chart
         - name: CHART_ROOT
           value: chart
         - name: TMP_DIR
