@@ -44,7 +44,7 @@
     "upgrade-interactive": "npm-check --update",
     "pact:verify": "ts-node test/pact-verify",
     "pact:publish": "ts-node test/pact-publish",
-    "sonarqube:scan": "ts-node test/sonarqube-scan"
+    "sonarqube:scan": "npm run test && ts-node test/sonarqube-scan"
   },
   "author": "",
   "license": "ISC",
