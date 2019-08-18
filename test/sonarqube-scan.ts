@@ -16,6 +16,7 @@ async function sonarScanner() {
       'sonar.password': process.env.SONARQUBE_PASSWORD,
       'sonar.sources': 'src',
       'sonar.language': 'ts',
+      'sonar.javascript.lcov.reportPaths' : 'coverage/lcov.info',
       'sonar.sourceEncoding': 'UTF-8'
     }
   }, result => {
