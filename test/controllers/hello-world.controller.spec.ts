@@ -1,6 +1,5 @@
 import {Application} from 'express';
 import * as request from 'supertest';
-import {ApiServer} from '../../src/server';
 import {Scope} from 'typescript-ioc';
 import {HelloWorldApi} from '../../src/services';
 import {buildApiServer} from '../helper';
