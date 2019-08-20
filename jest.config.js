@@ -17,6 +17,7 @@ module.exports = {
     "coverage/"
   ],
   testResultsProcessor: "jest-sonar-reporter",
+  testMatch: ["<rootDir>/test/**/*.spec.ts"],
   setupFiles: [
     "jest-plugin-context/setup"
   ],

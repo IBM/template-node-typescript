@@ -68,5 +68,9 @@
     "tslint": "^5.16.0",
     "typescript": "^3.4.4",
     "yargs": "^13.2.2"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/ibm-garage-cloud/template-node-typescript.git"
   }
 }
