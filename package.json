@@ -10,23 +10,6 @@
     "port": 3000,
     "contextRoot": ""
   },
-  "jest": {
-    "testResultsProcessor": "jest-sonar-reporter",
-    "setupFiles": [
-      "jest-plugin-context/setup"
-    ],
-    "coveragePathIgnorePatterns": [
-      "node_modules/",
-      "logs/.*",
-      "dist/.*",
-      "pacts/.*",
-      "coverage/",
-      "src/logger/.*"
-    ],
-    "coverageDirectory": "coverage",
-    "preset": "ts-jest",
-    "testEnvironment": "node"
-  },
   "pact": {
     "providerBaseUrl": "",
     "pactBrokerUrl": ""

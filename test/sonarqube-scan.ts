@@ -17,6 +17,7 @@ async function sonarScanner() {
       'sonar.sources': 'src',
       'sonar.language': 'ts',
       'sonar.javascript.lcov.reportPaths' : 'coverage/lcov.info',
+      'sonar.testExecutionReportPaths': 'test-report.xml',
       'sonar.sourceEncoding': 'UTF-8'
     }
   }, result => {
