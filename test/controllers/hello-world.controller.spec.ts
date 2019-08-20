@@ -9,7 +9,7 @@ class MockHelloWorldService implements HelloWorldApi {
   greeting = jest.fn().mockName('greeting');
 }
 
-describe('Hello controller', () => {
+describe('hello-world.controller', () => {
 
   let app: Application;
   let mockGreeting: jest.Mock;
