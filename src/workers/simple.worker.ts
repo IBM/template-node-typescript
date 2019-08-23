@@ -52,8 +52,10 @@ export class SimpleWorker implements WorkerApi {
     return this.subject;
   }
 
-  writeLog() {
-    this.logger.info('**** Simple worker running');
+  writeLog(): string {
+    const message = '**** Simple worker running';
+    this.logger.info(message);
+    return message;
   }
 }
 
