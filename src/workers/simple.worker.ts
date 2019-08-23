@@ -1,45 +1,60 @@
+import {Container, Inject, Singleton} from 'typescript-ioc';
 import Timeout = NodeJS.Timeout;
+
 import {WorkerApi} from './worker.api';
 import {workerManager} from './worker-manager';
+import {LoggerApi} from '../logger';
+import {SimpleWorkerConfig} from '../config/simple-worker.config';
+import {Observable, of, Subject} from 'rxjs';
 
-class SimpleWorker implements WorkerApi {
-  private promise: Promise<any>;
+export class SimpleWorker implements WorkerApi {
+  @Inject
+  private config: SimpleWorkerConfig;
+  @Inject
+  private _logger: LoggerApi;
+
+  private subject: Subject<any>;
   private stopped = false;
   private interval: Timeout;
 
-  async stop(): Promise<any> {
+  get logger(): LoggerApi {
+    return this._logger.child('SimpleWorker');
+  }
+
+  stop(): Observable<any> {
     this.stopped = true;
-    console.log('*** Stopping simple worker');
+    this.logger.info('*** Stopping simple worker');
 
     if (this.interval) {
       clearInterval(this.interval);
     }
 
-    return Promise.resolve('stopped');
-  }
-
-  async start(): Promise<any> {
-    if (this.promise) {
-      return this.promise;
+    if (this.subject) {
+      this.subject.complete();
     }
 
-    this.writeLog();
+    return this.subject || of();
+  }
 
-    return this.promise = new Promise<any>((resolve, reject) => {
-      this.interval = setInterval(() => {
-        if (this.stopped) {
-          clearInterval(this.interval);
-          resolve('stopped');
-        }
+  start(): Observable<any> {
+    if (this.subject) {
+      return this.subject;
+    }
 
-        this.writeLog();
-      }, 60 * 1000);
-    });
+    this.subject = new Subject<any>();
+
+    this.subject.next(this.writeLog());
+
+    this.interval = setInterval(() => {
+      this.subject.next(this.writeLog());
+    }, this.config.runInterval);
+
+    return this.subject;
   }
 
   writeLog() {
-    console.log('**** Simple worker running');
+    this.logger.info('**** Simple worker running');
   }
 }
 
-export const worker: WorkerApi = workerManager.registerWorker(new SimpleWorker());
+export const worker: WorkerApi = workerManager.registerWorker(Container.get(SimpleWorker));

@@ -1,4 +1,6 @@
-import {HelloWorldService} from '../../src/services/hello-world.service';
+import {Container} from 'typescript-ioc';
+
+import {HelloWorldService} from '../../src/services';
 import {ApiServer} from '../../src/server';
 import {buildApiServer} from '../helper';
 
@@ -9,7 +11,7 @@ describe('Hello World service', () =>{
   beforeAll(() => {
     app = buildApiServer();
 
-    service = app.get(HelloWorldService);
+    service = Container.get(HelloWorldService);
   });
 
   test('canary test verifies test infrastructure', () => {
@@ -30,5 +32,4 @@ describe('Hello World service', () =>{
       });
     })
   });
-
 });

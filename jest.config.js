@@ -7,7 +7,7 @@ module.exports = {
     "dist/.*",
     "pacts/.*",
     "coverage/",
-    "src/logger/.*"
+    "src/logger/*",
   ],
   watchPathIgnorePatterns: [
     "node_modules/",

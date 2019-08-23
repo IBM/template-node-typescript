@@ -16,16 +16,16 @@ const config = npmPackage.config || {
   port: 3000,
   'context-root': '/'
 };
-const apiContext = config['context-root'];
+const configApiContext = config['context-root'];
 
 export class ApiServer {
 
-  private readonly app: express.Application;
+  // private readonly app: express.Application;
   private server: http.Server = null;
   public PORT: number = +process.env.PORT || npmPackage.config.port;
 
-  constructor() {
-    this.app = express();
+  constructor(private readonly app: express.Application = express(), apiContext = configApiContext) {
+    // this.app = express();
 
     this.app.use(cors());
 
@@ -100,21 +100,13 @@ export class ApiServer {
           return resolve(true);
         });
       } else {
-        return resolve(true);
+        return resolve(false);
       }
     });
   }
 
   public getApp(): express.Application {
     return this.app;
-  }
-
-  public bind(source: Function): Config {
-    return Container.bind(source);
-  }
-
-  public get<T>(source: Function): T {
-    return Container.get(source);
   }
 
   get swaggerProtocols(): string[] {
