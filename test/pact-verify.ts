@@ -29,6 +29,7 @@ async function buildOptions(): Promise<VerifierOptions> {
         : {pactUrls: await listPactFiles(path.join(process.cwd(), 'pacts'))},
       {
           provider: config.name,
+          providerVersion: config.version,
           publishVerificationResult: true,
       },
     );
@@ -70,7 +71,7 @@ async function verifyPact() {
     const server: ApiServer = await buildApiServer().start();
 
     try {
-        await new Verifier().verifyProvider(options);
+        await new Verifier(options).verifyProvider();
     } finally {
         await server.stop();
     }
