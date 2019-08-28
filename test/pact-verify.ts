@@ -6,6 +6,7 @@ import * as yargs from 'yargs';
 import {buildApiServer} from "./helper";
 import * as config from '../package.json';
 import {ApiServer} from "../src/server";
+import superagent = require('superagent');
 
 const provider = config.config;
 const opts: VerifierOptions = config.pact as any;
@@ -58,13 +59,23 @@ async function listPactFiles(pactDir: string): Promise<string[]> {
 }
 
 async function verifyPact() {
-    const options = await buildOptions().catch(err => {
+    const options: VerifierOptions = await buildOptions().catch(err => {
         console.log('Error building pact options: ' + err.message);
         return null;
     });
 
     if (!options) {
         return;
+    }
+
+    if (options.pactBrokerUrl) {
+        const url = `${options.pactBrokerUrl}/pacts/provider/${options.provider}/latest`;
+        const response: superagent.Response = await superagent.get(url);
+
+        if (response.status === 404) {
+            console.log('No pacts found for provider in pact broker: ' + options.provider);
+            return;
+        }
     }
 
     console.log('Starting server');
@@ -79,4 +90,5 @@ async function verifyPact() {
 
 verifyPact().catch(err => {
     console.log('Error verifying provider', err);
+    process.exit(1);
 });
