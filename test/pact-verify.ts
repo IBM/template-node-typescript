@@ -70,11 +70,13 @@ async function verifyPact() {
 
     if (options.pactBrokerUrl) {
         const url = `${options.pactBrokerUrl}/pacts/provider/${options.provider}/latest`;
-        const response: superagent.Response = await superagent.get(url);
-
-        if (response.status === 404) {
-            console.log('No pacts found for provider in pact broker: ' + options.provider);
-            return;
+        try {
+            await superagent.get(url);
+        } catch (err) {
+            if (err.status === 404) {
+                console.log('No pacts found for provider in pact broker: ' + options.provider);
+                return;
+            }
         }
     }
 
