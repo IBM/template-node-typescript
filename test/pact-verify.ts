@@ -79,5 +79,4 @@ async function verifyPact() {
 
 verifyPact().catch(err => {
     console.log('Error verifying provider', err);
-    process.exit(1);
 });
