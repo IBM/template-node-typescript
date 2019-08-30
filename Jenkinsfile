@@ -107,17 +107,16 @@ spec:
                 '''
             }
             stage('Sonar scan') {
-                when {
-                    // Check if Sonar is installed before processing build step
-                    expression { "${SONARQUBE_URL}" != '' }
-                }
-                steps {
-                    sh '''#!/bin/bash
+                sh '''#!/bin/bash
 
-                    set -x
-                    npm run sonarqube:scan
-                    '''
-                }
+                if [[ -z "${SONARQUBE_URL}" ]]; then
+                  echo "Skipping Sonar Qube step as Sonar Qube not installed or configured"
+                  exit 0
+                fi
+
+                set -x
+                npm run sonarqube:scan
+                '''
             }
         }
         container(name: 'ibmcloud', shell: '/bin/bash') {
@@ -245,64 +244,63 @@ spec:
             }
 
             stage('Package Helm Chart') {
-                when {
-                    // Check if Artifactory is installed before processing build step
-                    expression { "${ARTIFACTORY_ENCRPT}" != '' }
-                }
-                steps {
-                    sh '''#!/bin/bash
-                    set -x
+                sh '''#!/bin/bash
+                set -x
 
-                    . ./env-config
+                if [[ -z "${ARTIFACTORY_ENCRPT}" ]]; then
+                  echo "Skipping Artifactory step as Artifactory is not installed or configured"
+                  exit 0
+                fi
 
-                    if [[ -n "${BUILD_NUMBER}" ]]; then
-                      IMAGE_BUILD_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
-                    fi
+                . ./env-config
 
-                    if [[ -z "${ARTIFACTORY_ENCRPT}" ]]; then
-                        echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
-                        exit 1
-                    fi
+                if [[ -n "${BUILD_NUMBER}" ]]; then
+                  IMAGE_BUILD_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
+                fi
 
-                    sudo apt-get install jq.
+                if [[ -z "${ARTIFACTORY_ENCRPT}" ]]; then
+                    echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
+                    exit 1
+                fi
 
-                    # Check if a Generic Local Repo has been created and retrieve the URL for it
-                    export URL=$(curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_PASSWORD} -X GET "${ARTIFACTORY_URL}/artifactory/api/repositories?type=LOCAL" | jq '.[0].url' | tr -d \\")
-                    echo ${URL}
+                sudo apt-get install jq.
 
-                    # Check if the URL is valid and we can continue
-                    if [ -n "${URL}" ]; then
-                        echo "Successfully read Repo ${URL}"
-                    else
-                        echo "No Repository Created"
-                        exit 1;
-                    fi;
+                # Check if a Generic Local Repo has been created and retrieve the URL for it
+                export URL=$(curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_PASSWORD} -X GET "${ARTIFACTORY_URL}/artifactory/api/repositories?type=LOCAL" | jq '.[0].url' | tr -d \\")
+                echo ${URL}
 
-                    # Package Helm Chart
-                    helm package --version ${IMAGE_BUILD_VERSION} chart/${CHART_NAME}
+                # Check if the URL is valid and we can continue
+                if [ -n "${URL}" ]; then
+                    echo "Successfully read Repo ${URL}"
+                else
+                    echo "No Repository Created"
+                    exit 1;
+                fi;
 
-                    # Get the index and re index it with current Helm Chart
-                    curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -O "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
+                # Package Helm Chart
+                helm package --version ${IMAGE_BUILD_VERSION} chart/${CHART_NAME}
 
-                    if [[ $(cat index.yaml | jq '.errors[0].status') != "404" ]]; then
-                        # Merge the chart index with the current index.yaml held in Artifactory
-                        echo "Merging Chart into index.yaml for Chart Repository"
-                        helm repo index . --url ${URL}/${REGISTRY_NAMESPACE} --merge index.yaml
-                    else
-                        # Dont Merge this is first time one is being created
-                        echo "Creating a new index.yaml for Chart Repository"
-                        rm index.yaml
-                        helm repo index . --url ${URL}/${REGISTRY_NAMESPACE}
-                    fi;
+                # Get the index and re index it with current Helm Chart
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -O "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
 
-                    # Persist the Helm Chart in Artifactory for us by ArgoCD
-                    curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T ${CHART_NAME}-${IMAGE_BUILD_VERSION}.tgz "${URL}/${REGISTRY_NAMESPACE}/${CHART_NAME}-${IMAGE_BUILD_VERSION}.tgz"
+                if [[ $(cat index.yaml | jq '.errors[0].status') != "404" ]]; then
+                    # Merge the chart index with the current index.yaml held in Artifactory
+                    echo "Merging Chart into index.yaml for Chart Repository"
+                    helm repo index . --url ${URL}/${REGISTRY_NAMESPACE} --merge index.yaml
+                else
+                    # Dont Merge this is first time one is being created
+                    echo "Creating a new index.yaml for Chart Repository"
+                    rm index.yaml
+                    helm repo index . --url ${URL}/${REGISTRY_NAMESPACE}
+                fi;
 
-                    # Persist the Helm Chart in Artifactory for us by ArgoCD
-                    curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T index.yaml "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
+                # Persist the Helm Chart in Artifactory for us by ArgoCD
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T ${CHART_NAME}-${IMAGE_BUILD_VERSION}.tgz "${URL}/${REGISTRY_NAMESPACE}/${CHART_NAME}-${IMAGE_BUILD_VERSION}.tgz"
 
-                '''
-                }
+                # Persist the Helm Chart in Artifactory for us by ArgoCD
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T index.yaml "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
+
+            '''
             }
             stage('Health Check') {
                 sh '''#!/bin/bash
