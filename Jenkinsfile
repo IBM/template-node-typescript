@@ -106,11 +106,17 @@ spec:
                     npm run pact:verify
                 '''
             }
-            stage('Sonar scan') {
-                sh '''#!/bin/bash
+            stage('Sonar scan')
+                when {
+                    // Check if Sonar is installed before processing build step
+                    expression { "${SONARQUBE_URL}" != '' }
+                }
+                steps {
+                    sh '''#!/bin/bash
                     set -x
                     npm run sonarqube:scan
-                '''
+                    '''
+                }
             }
         }
         container(name: 'ibmcloud', shell: '/bin/bash') {
@@ -238,7 +244,12 @@ spec:
             }
 
             stage('Package Helm Chart') {
-                sh '''#!/bin/bash
+                when {
+                    // Check if Artifactory is installed before processing build step
+                    expression { "${ARTIFACTORY_ENCRPT}" != '' }
+                }
+                steps {
+                    sh '''#!/bin/bash
                     set -x
 
                     . ./env-config
@@ -290,8 +301,8 @@ spec:
                     curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T index.yaml "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
 
                 '''
+                }
             }
-
             stage('Health Check') {
                 sh '''#!/bin/bash
                     . ./env-config
