@@ -106,7 +106,7 @@ spec:
                     npm run pact:verify
                 '''
             }
-            stage('Sonar scan')
+            stage('Sonar scan') {ß
                 when {
                     // Check if Sonar is installed before processing build step
                     expression { "${SONARQUBE_URL}" != '' }
