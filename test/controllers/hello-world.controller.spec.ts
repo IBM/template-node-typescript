@@ -1,7 +1,7 @@
 import {Application} from 'express';
 import * as request from 'supertest';
-import {ApiServer} from '../../src/server';
-import {Scope} from 'typescript-ioc';
+import {Container, Scope} from 'typescript-ioc';
+
 import {HelloWorldApi} from '../../src/services';
 import {buildApiServer} from '../helper';
 
@@ -9,7 +9,7 @@ class MockHelloWorldService implements HelloWorldApi {
   greeting = jest.fn().mockName('greeting');
 }
 
-describe('Hello controller', () => {
+describe('hello-world.controller', () => {
 
   let app: Application;
   let mockGreeting: jest.Mock;
@@ -19,9 +19,9 @@ describe('Hello controller', () => {
 
     app = apiServer.getApp();
 
-    apiServer.bind(HelloWorldApi).scope(Scope.Singleton).to(MockHelloWorldService);
+    Container.bind(HelloWorldApi).scope(Scope.Singleton).to(MockHelloWorldService);
 
-    const mockService: HelloWorldApi = apiServer.get(HelloWorldApi);
+    const mockService: HelloWorldApi = Container.get(HelloWorldApi);
     mockGreeting = mockService.greeting as jest.Mock;
   });
 

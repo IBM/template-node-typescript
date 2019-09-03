@@ -4,10 +4,12 @@ import {GET, Path,Accept,ContextAccept} from 'typescript-rest';
 @AutoWired
 @Singleton
 @Path('/health')
-export class Health {
+export class HealthController {
 
   @GET
-  async healthCheck(): Promise<string> {
-    return "{status: 'UP'}";
+  async healthCheck(): Promise<{status: string;}> {
+    return {
+      status: 'UP'
+    };
   }
 }

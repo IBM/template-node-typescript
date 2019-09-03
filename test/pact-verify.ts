@@ -6,6 +6,7 @@ import * as yargs from 'yargs';
 import {buildApiServer} from "./helper";
 import * as config from '../package.json';
 import {ApiServer} from "../src/server";
+import superagent = require('superagent');
 
 const provider = config.config;
 const opts: VerifierOptions = config.pact as any;
@@ -29,6 +30,7 @@ async function buildOptions(): Promise<VerifierOptions> {
         : {pactUrls: await listPactFiles(path.join(process.cwd(), 'pacts'))},
       {
           provider: config.name,
+          providerVersion: config.version,
           publishVerificationResult: true,
       },
     );
@@ -57,7 +59,7 @@ async function listPactFiles(pactDir: string): Promise<string[]> {
 }
 
 async function verifyPact() {
-    const options = await buildOptions().catch(err => {
+    const options: VerifierOptions = await buildOptions().catch(err => {
         console.log('Error building pact options: ' + err.message);
         return null;
     });
@@ -66,11 +68,23 @@ async function verifyPact() {
         return;
     }
 
+    if (options.pactBrokerUrl) {
+        const url = `${options.pactBrokerUrl}/pacts/provider/${options.provider}/latest`;
+        try {
+            await superagent.get(url);
+        } catch (err) {
+            if (err.status === 404) {
+                console.log('No pacts found for provider in pact broker: ' + options.provider);
+                return;
+            }
+        }
+    }
+
     console.log('Starting server');
     const server: ApiServer = await buildApiServer().start();
 
     try {
-        await new Verifier().verifyProvider(options);
+        await new Verifier(options).verifyProvider();
     } finally {
         await server.stop();
     }
@@ -78,4 +92,5 @@ async function verifyPact() {
 
 verifyPact().catch(err => {
     console.log('Error verifying provider', err);
+    process.exit(1);
 });

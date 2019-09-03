@@ -1,6 +1,8 @@
 
+import {Observable} from 'rxjs';
+
 // tslint:disable:no-any
 export abstract class WorkerApi {
-  abstract async start(): Promise<any>;
-  abstract async stop(): Promise<any>;
+  abstract start(): Observable<any>;
+  abstract stop(): Observable<any>;
 }

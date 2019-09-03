@@ -1,5 +1,4 @@
 import * as sonarqubeScanner from 'sonarqube-scanner';
-import * as config from '../package.json';
 
 const serverUrl = process.env.SONARQUBE_URL;
 
@@ -15,9 +14,12 @@ async function sonarScanner() {
       'sonar.login': process.env.SONARQUBE_USER,
       'sonar.password': process.env.SONARQUBE_PASSWORD,
       'sonar.sources': 'src',
+      'sonar.coverage.exclusions': 'src/logger/*',
+      'sonar.tests': 'test',
       'sonar.language': 'ts',
-      'sonar.javascript.lcov.reportPaths' : 'coverage/lcov.info',
-      'sonar.sourceEncoding': 'UTF-8'
+      'sonar.typescript.lcov.reportPaths' : 'coverage/lcov.info',
+      'sonar.testExecutionReportPaths': 'test-report.xml',
+      'sonar.sourceEncoding': 'UTF-8',
     }
   }, result => {
     console.log('Sonarqube scanner result:', result);
