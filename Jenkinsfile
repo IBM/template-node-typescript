@@ -41,7 +41,7 @@ spec:
         - name: HOME
           value: ${workingDir}
     - name: ibmcloud
-      image: docker.io/garagecatalyst/ibmcloud-dev:1.0.7
+      image: docker.io/garagecatalyst/ibmcloud-dev:1.0.8
       tty: true
       command: ["/bin/bash"]
       workingDir: ${workingDir}
@@ -222,14 +222,20 @@ spec:
                     
                     IMAGE_REPOSITORY="${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}"
                     PIPELINE_IMAGE_URL="${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                    
+                    # Update helm chart with repository and tag values
+                    cat ${CHART_PATH}/values.yaml | \
+                        yq w - nameOverride "${IMAGE_NAME}" | \
+                        yq w - fullnameOverride "${IMAGE_NAME}" | \
+                        yq w - image.repository "${IMAGE_REPOSITORY}" | \
+                        yq w - image.tag "${IMAGE_VERSION}" > ./values.yaml.tmp
+                    cp ./values.yaml.tmp ${CHART_PATH}/values.yaml
+                    cat ${CHART_PATH}/values.yaml
 
                     # Using 'upgrade --install" for rolling updates. Note that subsequent updates will occur in the same namespace the release is currently deployed in, ignoring the explicit--namespace argument".
                     helm template ${CHART_PATH} \
                         --name ${RELEASE_NAME} \
                         --namespace ${ENVIRONMENT_NAME} \
-                        --set nameOverride=${IMAGE_NAME} \
-                        --set image.repository=${IMAGE_REPOSITORY} \
-                        --set image.tag=${IMAGE_VERSION} \
                         --set ingress.tlsSecretName="${TLS_SECRET_NAME}" \
                         --set ingress.subdomain="${INGRESS_SUBDOMAIN}" > ./release.yaml
                     
