@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "stater-kit-chart.name" -}}
+{{- define "template-node-typescript.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -11,11 +11,11 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "stater-kit-chart.fullname" -}}
+{{- define "template-node-typescript.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := include "template-node-typescript.name" . -}}
 {{- if contains $name .Release.Name -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -27,33 +27,45 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "stater-kit-chart.chart" -}}
+{{- define "template-node-typescript.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "stater-kit-chart.host" -}}
-{{- $chartName := default .Chart.Name .Values.nameOverride -}}
+{{- define "template-node-typescript.host" -}}
+{{- $chartName := include "template-node-typescript.name" . -}}
 {{- $host := default $chartName .Values.ingress.host -}}
+{{- $subdomain := default .Values.ingress.subdomain .Values.global.ingressSubdomain -}}
 {{- if .Values.ingress.namespaceInHost -}}
-{{- printf "%s-%s.%s" $host .Release.Namespace .Values.ingress.subdomain -}}
+{{- printf "%s-%s.%s" $host .Release.Namespace $subdomain -}}
 {{- else -}}
-{{- printf "%s.%s" $host .Values.ingress.subdomain -}}
+{{- printf "%s.%s" $host $subdomain -}}
 {{- end -}}
 {{- end -}}
 
-{{- define "stater-kit-chart.url" -}}
-{{- $host := include "stater-kit-chart.host" . -}}
-{{- if .Values.ingress.tlsSecretName -}}
+{{- define "template-node-typescript.url" -}}
+{{- $secretName := include "template-node-typescript.tlsSecretName" . -}}
+{{- $host := include "template-node-typescript.host" . -}}
+{{- if $secretName -}}
 {{- printf "https://%s" $host -}}
 {{- else -}}
 {{- printf "http://%s" $host -}}
 {{- end -}}
 {{- end -}}
 
-{{- define "stater-kit-chart.protocols" -}}
-{{- if .Values.ingress.tlsSecretName -}}
+{{- define "template-node-typescript.protocols" -}}
+{{- $secretName := include "template-node-typescript.tlsSecretName" . -}}
+{{- if $secretName -}}
 {{- printf "%s,%s" "http" "https" -}}
 {{- else -}}
 {{- printf "%s" "http" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "template-node-typescript.tlsSecretName" -}}
+{{- $secretName := default .Values.ingress.tlsSecretName .Values.global.tlsSecretName -}}
+{{- if $secretName }}
+{{- printf "%s" $secretName -}}
+{{- else -}}
+{{- printf "" -}}
 {{- end -}}
 {{- end -}}

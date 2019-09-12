@@ -1,12 +1,12 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "stater-kit-chart.fullname" . -}}
+{{- $fullName := include "template-node-typescript.fullname" . -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    app.kubernetes.io/name: {{ include "stater-kit-chart.name" . }}
-    helm.sh/chart: {{ include "stater-kit-chart.chart" . }}
+    app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
+    helm.sh/chart: {{ include "template-node-typescript.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app: {{ .Release.Name }}
   {{- with .Values.ingress.annotations }}
@@ -14,14 +14,14 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.ingress.tlsSecretName }}
+{{- if include "template-node-typescript.tlsSecretName" . }}
   tls:
     - hosts:
-        - {{ include "stater-kit-chart.host" . }}
-      secretName: {{ .Values.ingress.tlsSecretName }}
+        - {{ include "template-node-typescript.host" . }}
+      secretName: {{ include "template-node-typescript.tlsSecretName" . }}
 {{- end }}
   rules:
-    - host: {{ include "stater-kit-chart.host" . }}
+    - host: {{ include "template-node-typescript.host" . }}
       http:
         paths:
           - path: {{ .path }}
