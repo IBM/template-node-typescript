@@ -56,6 +56,9 @@ spec:
         - secretRef:
             name: artifactory-access
             optional: true
+        - secretRef:
+            name: gitops-cd-secret
+            optional: true
       env:
         - name: CHART_NAME
           value: template-node-typescript
@@ -248,7 +251,29 @@ spec:
                     # ${SCRIPT_ROOT}/deploy-checkstatus.sh ${ENVIRONMENT_NAME} ${IMAGE_NAME} ${IMAGE_REPOSITORY} ${IMAGE_VERSION}
                 '''
             }
+            stage('Health Check') {
+                sh '''#!/bin/bash
+                    . ./env-config
+                    
+                    ENVIRONMENT_NAME=dev
 
+                    INGRESS_NAME="${IMAGE_NAME}"
+                    INGRESS_HOST=$(kubectl get ingress/${INGRESS_NAME} --namespace ${ENVIRONMENT_NAME} --output=jsonpath='{ .spec.rules[0].host }')
+                    PORT='80'
+
+                    # sleep for 10 seconds to allow enough time for the server to start
+                    sleep 30
+
+                    if [ $(curl -sL -w "%{http_code}\\n" "http://${INGRESS_HOST}:${PORT}/health" -o /dev/null --connect-timeout 3 --max-time 5 --retry 3 --retry-max-time 30) == "200" ]; then
+                        echo "Successfully reached health endpoint: http://${INGRESS_HOST}:${PORT}/health"
+                    echo "====================================================================="
+                        else
+                    echo "Could not reach health endpoint: http://${INGRESS_HOST}:${PORT}/health"
+                        exit 1;
+                    fi;
+
+                '''
+            }
             stage('Package Helm Chart') {
                 sh '''#!/bin/bash
                 set -x
@@ -308,27 +333,47 @@ spec:
 
             '''
             }
-            stage('Health Check') {
+            stage('Trigger CD Pipeline') {
                 sh '''#!/bin/bash
+                    if [[ -z "${GITOPS_CD_URL}" ]]; then
+                        exit 0
+                    fi
+                    if [[ -z "${GITOPS_CD_BRANCH}" ]]; then
+                        GITOPS_CD_BRANCH="master"
+                    fi
+                    
                     . ./env-config
                     
-                    ENVIRONMENT_NAME=dev
-
-                    INGRESS_NAME="${IMAGE_NAME}"
-                    INGRESS_HOST=$(kubectl get ingress/${INGRESS_NAME} --namespace ${ENVIRONMENT_NAME} --output=jsonpath='{ .spec.rules[0].host }')
-                    PORT='80'
-
-                    # sleep for 10 seconds to allow enough time for the server to start
-                    sleep 30
-
-                    if [ $(curl -sL -w "%{http_code}\\n" "http://${INGRESS_HOST}:${PORT}/health" -o /dev/null --connect-timeout 3 --max-time 5 --retry 3 --retry-max-time 30) == "200" ]; then
-                        echo "Successfully reached health endpoint: http://${INGRESS_HOST}:${PORT}/health"
-                    echo "====================================================================="
-                        else
-                    echo "Could not reach health endpoint: http://${INGRESS_HOST}:${PORT}/health"
-                        exit 1;
-                    fi;
-
+                    if [[ -n "${BUILD_NUMBER}" ]]; then
+                      IMAGE_BUILD_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
+                    fi
+                    
+                    git config --global user.email "jenkins@elavon.com"
+                    git config --global user.name "Jenkins Pipeline"
+                    
+                    git clone -b ${GITOPS_CD_BRANCH} ${GITOPS_CD_URL} gitops_cd
+                    cd gitops_cd
+                    
+                    echo "Requirements before update"
+                    cat "./${IMAGE_NAME}/requirements.yaml"
+                    
+                    # Read the helm repo
+                    HELM_REPO=$(yq r ./${IMAGE_NAME}/requirements.yaml 'dependencies[0].repository')
+                    
+                    # Write the updated requirements.yaml
+                    echo "dependencies:" > ./requirements.yaml.tmp
+                    echo "  - name: ${CHART_NAME}" >> ./requirements.yaml.tmp
+                    echo "    version: ${IMAGE_BUILD_VERSION}" >> ./requirements.yaml.tmp
+                    echo "    repository: ${HELM_REPO}" >> ./requirements.yaml.tmp
+                    
+                    cp ./requirements.yaml.tmp "./${IMAGE_NAME}/requirements.yaml"
+                    
+                    echo "Requirements after update"
+                    cat "./${IMAGE_NAME}/requirements.yaml"
+                    
+                    git add -u
+                    git commit -m "Updates ${IMAGE_NAME} to ${IMAGE_BUILD_VERSION}"
+                    git push
                 '''
             }
         }
