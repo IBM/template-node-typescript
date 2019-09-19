@@ -348,7 +348,8 @@ spec:
                       IMAGE_BUILD_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
                     fi
                     
-                    git config --global user.email "jenkins@elavon.com"
+                    # This email is not used and it not valid, you can ignore but git requires it
+                    git config --global user.email "jenkins@ibmcloud.com"
                     git config --global user.name "Jenkins Pipeline"
                     
                     git clone -b ${GITOPS_CD_BRANCH} ${GITOPS_CD_URL} gitops_cd
