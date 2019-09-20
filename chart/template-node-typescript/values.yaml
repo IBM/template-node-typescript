@@ -20,6 +20,10 @@ service:
 
 ingress:
   enabled: true
+  appid:
+    enabled: false
+    # web or app - https://cloud.ibm.com/docs/services/appid?topic=appid-kube-auth
+    requestType: web
 
 #  host: hello
   namespaceInHost: true
