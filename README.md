@@ -28,7 +28,7 @@ The starter kit provides the following features:
 - Logging using `bunyan`
 - TDD environment with [Jest](https://jestjs.io/)
 - Pact testing [Pact](https://docs.pact.io/)
-- Jenkins DevOps pipeline that support OpenShift or IKS deployment with Catalyst
+- Jenkins DevOps pipeline that support OpenShift or IKS deployment
 
 #### Native Application Development
 
