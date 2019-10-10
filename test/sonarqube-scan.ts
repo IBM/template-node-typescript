@@ -27,4 +27,7 @@ async function sonarScanner() {
 }
 
 sonarScanner()
-  .catch(err => console.error('Error during sonar scan', err));
+  .catch(err => {
+    console.error('Error during sonar scan', err);
+    process.exit(1);
+  });

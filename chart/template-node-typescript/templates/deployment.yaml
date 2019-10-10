@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "stater-kit-chart.fullname" . }}
+  name: {{ include "template-node-typescript.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "stater-kit-chart.name" . }}
-    helm.sh/chart: {{ include "stater-kit-chart.chart" . }}
+    app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
+    helm.sh/chart: {{ include "template-node-typescript.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "stater-kit-chart.name" . }}
+      app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "stater-kit-chart.name" . }}
+        app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       {{- if .Values.image.secretName }}
@@ -42,9 +42,9 @@ spec:
               port: http
           env:
             - name: INGRESS_HOST
-              value: {{ include "stater-kit-chart.host" . }}
+              value: {{ include "template-node-typescript.host" . }}
             - name: PROTOCOLS
-              value: {{ include "stater-kit-chart.protocols" . }}
+              value: {{ include "template-node-typescript.protocols" . }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
