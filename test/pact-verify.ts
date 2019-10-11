@@ -21,13 +21,20 @@ const argv = yargs.options({
 const pactBrokerUrl = process.env.PACTBROKER_URL || opts.pactBrokerUrl;
 
 async function buildOptions(): Promise<VerifierOptions> {
+
+    const pactUrls = await listPactFiles(path.join(process.cwd(), 'pacts'));
+    if (!pactBrokerUrl && pactUrls.length === 0) {
+        console.log('Nothing to test. Pact Broker url not set and no pact files found');
+        return undefined;
+    }
+
     const options: VerifierOptions = Object.assign(
       {},
       opts,
       argv,
       pactBrokerUrl
         ? {pactBrokerUrl}
-        : {pactUrls: await listPactFiles(path.join(process.cwd(), 'pacts'))},
+        : {pactUrls},
       {
           provider: config.name,
           providerVersion: config.version,
@@ -42,6 +49,11 @@ async function buildOptions(): Promise<VerifierOptions> {
 
 async function listPactFiles(pactDir: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
+        if (!fs.existsSync(pactDir)) {
+            resolve([]);
+            return;
+        }
+
         fs.readdir(pactDir, (err, items) => {
             if (err) {
                 reject(err);
