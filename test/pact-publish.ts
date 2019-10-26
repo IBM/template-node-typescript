@@ -54,4 +54,7 @@ async function listPactFiles(pactDir: string): Promise<string[]> {
 }
 
 publishPact()
-  .catch(err => console.error('Error publishing pact', err));
+  .catch(err => {
+    console.error('Error publishing pact', err);
+    process.exit(1);
+  });
