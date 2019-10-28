@@ -9,6 +9,7 @@
  * The cloudName variable is set dynamically based on the existance/value of env.CLOUD_NAME which allows this pipeline
  * to run in both Kubernetes and OpenShift environments.
  */
+
 def buildAgentName(String jobName, String buildNumber) {
     if (jobName.length() > 23) {
         jobName = jobName.substring(0, 23);
@@ -16,7 +17,6 @@ def buildAgentName(String jobName, String buildNumber) {
 
     return "agent.${jobName}.${buildNumber}".replace('_', '-').replace('/', '-').replace('-.', '.');
 }
-
 
 def buildLabel = buildAgentName(env.JOB_NAME, env.BUILD_NUMBER);
 def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
