@@ -70,7 +70,7 @@ Create pipeline for each environment for example the `dev` namespace
 kubectl create -f tekton/ -n dev
 ```
 
-You need to install the taks that this pipeline depends from the iteration-zero repository:
+You need to install the tasks that this pipeline depends from the iteration-zero repository:
 ```bash
 git clone https://github.com/ibm-garage-cloud/ibm-garage-iteration-zero.git
 kubectl -f ibm-garage-iteration-zero/tekton -n dev
