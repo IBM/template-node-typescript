@@ -1,0 +1,50 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: node-typescript
+spec:
+  resources:
+    - name: git-source
+      type: git
+    - name: docker-image
+      type: image
+  tasks:
+    - name: js-test
+      taskRef:
+        name: js-test
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+    - name: build-image
+      taskRef:
+        name: build-image
+      runAfter: [js-test]
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+    - name: deploy
+      taskRef:
+        name: deploy
+      runAfter: [build-image]
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+    - name: health-check
+      taskRef:
+        name: health-check
+      runAfter: [deploy]
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
+    - name: gitops
+      taskRef:
+        name: gitops
+      runAfter: [health-check]
+      resources:
+        inputs:
+          - name: source
+            resource: git-source
