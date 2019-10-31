@@ -159,14 +159,14 @@ spec:
                     echo -e "=========================================================================================="
                     echo -e "BUILDING CONTAINER IMAGE: ${IMAGE_NAME}:${IMAGE_VERSION}"
                     set -x
-                    buildah bud -t ${IMAGE_NAME}:${IMAGE_VERSION} .
+                    sudo buildah bud -t ${IMAGE_NAME}:${IMAGE_VERSION} .
                     
                     echo -e "PUSHING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
-                    buildah push --creds ${REGISTRY_USER}:${APIKEY} ${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}
+                    sudo buildah push --creds ${REGISTRY_USER}:${APIKEY} ${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}
                     
                     if [[ -n "${BUILD_NUMBER}" ]]; then
                         echo -e "PUSHING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}"
-                        buildah push --creds ${REGISTRY_USER}:${APIKEY} ${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}
+                        sudo buildah push --creds ${REGISTRY_USER}:${APIKEY} ${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}
                     fi
                     
                     #echo -e "Available images in registry"
@@ -264,8 +264,6 @@ spec:
                     echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
                     exit 1
                 fi
-
-                sudo apt-get install jq.
 
                 # Check if a Generic Local Repo has been created and retrieve the URL for it
                 export URL=$(curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_PASSWORD} -X GET "${ARTIFACTORY_URL}/artifactory/api/repositories?type=LOCAL" | jq '.[0].url' | tr -d \\")
