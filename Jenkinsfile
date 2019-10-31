@@ -68,6 +68,8 @@ spec:
             name: gitops-cd-secret
             optional: true
       env:
+        - name: REGISTRY_USER
+          value: iamapikey
         - name: CHART_NAME
           value: template-node-typescript
         - name: CHART_ROOT
@@ -141,29 +143,35 @@ spec:
                     
                     . ./env-config
 
-                    echo "Checking registry namespace: ${REGISTRY_NAMESPACE}"
-                    NS=$( ibmcloud cr namespaces | grep ${REGISTRY_NAMESPACE} ||: )
-                    if [[ -z "${NS}" ]]; then
-                        echo -e "Registry namespace ${REGISTRY_NAMESPACE} not found, creating it."
-                        ibmcloud cr namespace-add ${REGISTRY_NAMESPACE}
-                    else
-                        echo -e "Registry namespace ${REGISTRY_NAMESPACE} found."
-                    fi
+                    #podman login -u iamapikey -p ${APIKEY} ${REGISTRY_URL}
+                    
+                    #echo "Checking registry namespace: ${REGISTRY_NAMESPACE}"
+                    #NS=$( ibmcloud cr namespaces | grep ${REGISTRY_NAMESPACE} ||: )
+                    #if [[ -z "${NS}" ]]; then
+                    #    echo -e "Registry namespace ${REGISTRY_NAMESPACE} not found, creating it."
+                    #    ibmcloud cr namespace-add ${REGISTRY_NAMESPACE}
+                    #else
+                    #    echo -e "Registry namespace ${REGISTRY_NAMESPACE} found."
+                    #fi
 
-                    echo -e "Existing images in registry"
-                    ibmcloud cr images --restrict "${REGISTRY_NAMESPACE}/${IMAGE_NAME}"
+                    #echo -e "Existing images in registry"
+                    #ibmcloud cr images --restrict "${REGISTRY_NAMESPACE}/${IMAGE_NAME}"
                     
                     echo -e "=========================================================================================="
-                    echo -e "BUILDING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                    echo -e "BUILDING CONTAINER IMAGE: ${IMAGE_NAME}:${IMAGE_VERSION}"
                     set -x
-                    ibmcloud cr build -t ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION} .
+                    sudo buildah bud -t ${IMAGE_NAME}:${IMAGE_VERSION} .
+                    
+                    echo -e "PUSHING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                    sudo buildah push --creds ${REGISTRY_USER}:${APIKEY} ${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}
+                    
                     if [[ -n "${BUILD_NUMBER}" ]]; then
-                        echo -e "BUILDING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}"
-                        ibmcloud cr image-tag ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}
+                        echo -e "PUSHING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}"
+                        sudo buildah push --creds ${REGISTRY_USER}:${APIKEY} ${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}
                     fi
                     
-                    echo -e "Available images in registry"
-                    ibmcloud cr images --restrict ${REGISTRY_NAMESPACE}/${IMAGE_NAME}
+                    #echo -e "Available images in registry"
+                    #ibmcloud cr images --restrict ${REGISTRY_NAMESPACE}/${IMAGE_NAME}
                 '''
             }
             stage('Deploy to DEV env') {
@@ -257,8 +265,6 @@ spec:
                     echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
                     exit 1
                 fi
-
-                sudo apt-get install jq.
 
                 # Check if a Generic Local Repo has been created and retrieve the URL for it
                 export URL=$(curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_PASSWORD} -X GET "${ARTIFACTORY_URL}/artifactory/api/repositories?type=LOCAL" | jq '.[0].url' | tr -d \\")
