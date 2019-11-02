@@ -88,8 +88,8 @@ spec:
             stage('Setup') {
                 sh '''#!/bin/bash
                     set -x
-                    # Export project name, version, and build number to ./env-config
-                    npm run env | grep "^npm_package_name" | sed "s/npm_package_name/IMAGE_NAME/g"  > ./env-config
+                    # Export project name (lowercase), version, and build number to ./env-config
+                    npm run env | grep "^npm_package_name" | tr ‘[:upper:]’ ‘[:lower:]’ | sed “s/_/-/g” | sed "s/npm_package_name/IMAGE_NAME/g" > ./env-config
                     npm run env | grep "^npm_package_version" | sed "s/npm_package_version/IMAGE_VERSION/g" >> ./env-config
                     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ./env-config
                 '''
