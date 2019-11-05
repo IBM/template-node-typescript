@@ -281,7 +281,7 @@ spec:
                 fi;
 
                 # Package Helm Chart
-                helm package --version ${IMAGE_BUILD_VERSION} ${CHART_PATH}/${IMAGE_NAME}
+                helm package --version ${IMAGE_BUILD_VERSION} ${CHART_ROOT}/${IMAGE_NAME}
 
                 # Get the index and re index it with current Helm Chart
                 curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -O "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
