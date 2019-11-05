@@ -193,6 +193,9 @@ spec:
                     
                     echo "CHECKING CHART (lint)"
                     helm lint ${CHART_PATH}
+                    if [[ $? -ne 0 ]]; then
+                      exit 1
+                    fi
                     
                     IMAGE_REPOSITORY="${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}"
                     PIPELINE_IMAGE_URL="${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
