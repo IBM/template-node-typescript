@@ -12,8 +12,6 @@ RUN npm run build
 
 FROM registry.access.redhat.com/ubi8/nodejs-10
 
-WORKDIR /opt/app-root/src
-
 COPY --from=builder /opt/app-root/src/dist dist
 COPY public public
 COPY package.json .
