@@ -150,24 +150,23 @@ spec:
                         echo -e "Registry namespace ${REGISTRY_NAMESPACE} found."
                     fi
 
-                    echo -e "Existing images in registry"
-                    ibmcloud cr images --restrict "${REGISTRY_NAMESPACE}/${IMAGE_NAME}"
-                    
                     echo -e "=========================================================================================="
                     echo -e "BUILDING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
                     set -x
                     ibmcloud cr build -t ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION} .
+                    if [[ $? -ne 0 ]]; then
+                      exit 1
+                    fi
+
                     if [[ -n "${BUILD_NUMBER}" ]]; then
                         echo -e "BUILDING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}"
                         ibmcloud cr image-tag ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}
                     fi
-                    
-                    echo -e "Available images in registry"
-                    ibmcloud cr images --restrict ${REGISTRY_NAMESPACE}/${IMAGE_NAME}
                 '''
             }
             stage('Deploy to DEV env') {
                 sh '''#!/bin/bash
+                    echo "Deploying to ${ENVIRONMENT_NAME}"
                     set -x
 
                     . ./env-config
