@@ -174,7 +174,7 @@ spec:
                     if [[ "${CHART_NAME}" != "${IMAGE_NAME}" ]]; then
                       cp -R "${CHART_ROOT}/${CHART_NAME}" "${CHART_ROOT}/${IMAGE_NAME}"
                       cat "${CHART_ROOT}/${CHART_NAME}/Chart.yaml" | \
-                          yq w - name "${IMAGE_NAME}" > "${CHART_ROOT}/${IMAGE_NAME}/Chart/yaml"
+                          yq w - name "${IMAGE_NAME}" > "${CHART_ROOT}/${IMAGE_NAME}/Chart.yaml"
                     fi
                     
                     CHART_PATH="${CHART_ROOT}/${IMAGE_NAME}"
