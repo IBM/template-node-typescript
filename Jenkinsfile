@@ -11,11 +11,11 @@
  */
 
 def buildAgentName(String jobName, String buildNumber) {
-    if (jobName.length() > 63) {
-        jobName = jobName.substring(0, 63);
+    if (jobName.length() > 55) {
+        jobName = jobName.substring(0, 55);
     }
 
-    return "agent.${jobName}.${buildNumber}".replace('_', '-').replace('/', '-').replace('-.', '.');
+    return "a.${jobName}.${buildNumber}".replace('_', '-').replace('/', '-').replace('-.', '.');
 }
 
 def buildLabel = buildAgentName(env.JOB_NAME, env.BUILD_NUMBER);
