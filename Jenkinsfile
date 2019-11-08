@@ -11,8 +11,8 @@
  */
 
 def buildAgentName(String jobName, String buildNumber) {
-    if (jobName.length() > 253) {
-        jobName = jobName.substring(0, 253);
+    if (jobName.length() > 63) {
+        jobName = jobName.substring(0, 63);
     }
 
     return "agent.${jobName}.${buildNumber}".replace('_', '-').replace('/', '-').replace('-.', '.');
@@ -23,7 +23,7 @@ def namespace = env.NAMESPACE ?: "dev"
 def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
 def workingDir = env.CLOUD_NAME == "openshift" ? "/home/jenkins" : "/home/jenkins/agent"
 podTemplate(
-   namespace: namespace,
+   namespace: env.NAMESPACE,
    label: buildLabel,
    cloud: cloudName,
    yaml: """
@@ -79,7 +79,7 @@ spec:
         - name: HOME
           value: /home/devops
         - name: ENVIRONMENT_NAME
-          value: ${namespace}
+          value: ${env.NAMESPACE}
         - name: BUILD_NUMBER
           value: ${env.BUILD_NUMBER}
 """
