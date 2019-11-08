@@ -11,17 +11,19 @@
  */
 
 def buildAgentName(String jobName, String buildNumber) {
-    if (jobName.length() > 23) {
-        jobName = jobName.substring(0, 23);
+    if (jobName.length() > 253) {
+        jobName = jobName.substring(0, 253);
     }
 
     return "agent.${jobName}.${buildNumber}".replace('_', '-').replace('/', '-').replace('-.', '.');
 }
 
 def buildLabel = buildAgentName(env.JOB_NAME, env.BUILD_NUMBER);
+def namespace = env.NAMESPACE ?: "dev"
 def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
 def workingDir = env.CLOUD_NAME == "openshift" ? "/home/jenkins" : "/home/jenkins/agent"
 podTemplate(
+   namespace: namespace,
    label: buildLabel,
    cloud: cloudName,
    yaml: """
@@ -77,7 +79,7 @@ spec:
         - name: HOME
           value: /home/devops
         - name: ENVIRONMENT_NAME
-          value: dev
+          value: ${namespace}
         - name: BUILD_NUMBER
           value: ${env.BUILD_NUMBER}
 """
@@ -134,21 +136,11 @@ spec:
             }
         }
         container(name: 'ibmcloud', shell: '/bin/bash') {
-            
             stage('Build image') {
                 sh '''#!/bin/bash
                     set -x
                     
                     . ./env-config
-
-                    echo "Checking registry namespace: ${REGISTRY_NAMESPACE}"
-                    NS=$( ibmcloud cr namespaces | grep ${REGISTRY_NAMESPACE} ||: )
-                    if [[ -z "${NS}" ]]; then
-                        echo -e "Registry namespace ${REGISTRY_NAMESPACE} not found, creating it."
-                        ibmcloud cr namespace-add ${REGISTRY_NAMESPACE}
-                    else
-                        echo -e "Registry namespace ${REGISTRY_NAMESPACE} found."
-                    fi
 
                     echo -e "=========================================================================================="
                     echo -e "BUILDING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
