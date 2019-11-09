@@ -23,7 +23,6 @@ def namespace = env.NAMESPACE ?: "dev"
 def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
 def workingDir = env.CLOUD_NAME == "openshift" ? "/home/jenkins" : "/home/jenkins/agent"
 podTemplate(
-   namespace: env.NAMESPACE,
    label: buildLabel,
    cloud: cloudName,
    yaml: """
