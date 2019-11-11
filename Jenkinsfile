@@ -89,9 +89,8 @@ spec:
             stage('Setup') {
                 sh '''#!/bin/bash
                     # Export project name (lowercase), version, and build number to ./env-config
-                    IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url`)
+                    IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed "s/_/-/g")
                     echo "IMAGE_NAME=${IMAGE_NAME}" > ./env-config
-                    # npm run env | grep "^npm_package_name" | tr '[:upper:]' '[:lower:]' | sed "s/_/-/g" | sed "s/npm-package-name/IMAGE_NAME/g" > ./env-config
                     npm run env | grep "^npm_package_version" | sed "s/npm_package_version/IMAGE_VERSION/g" >> ./env-config
                     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ./env-config
                     cat ./env-config
