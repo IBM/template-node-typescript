@@ -65,9 +65,6 @@ spec:
         - secretRef:
             name: artifactory-access
             optional: true
-        - secretRef:
-            name: gitops-cd-secret
-            optional: true
       env:
         - name: CHART_NAME
           value: template-node-typescript
@@ -81,6 +78,15 @@ spec:
           value: ${env.NAMESPACE}
         - name: BUILD_NUMBER
           value: ${env.BUILD_NUMBER}
+    - name: trigger-cd
+      image: docker.io/garagecatalyst/ibmcloud-dev:1.0.8
+      tty: true
+      command: ["/bin/bash"]
+      workingDir: ${workingDir}
+      envFrom:
+        - secretRef:
+            name: gitops-cd-secret
+            optional: true
 """
 ) {
     node(buildLabel) {
@@ -286,13 +292,16 @@ spec:
 
             '''
             }
+        }
+        container(name: 'trigger-cd', shell: '/bin/bash') {
             stage('Trigger CD Pipeline') {
                 sh '''#!/bin/bash
-                    if [[ -z "${GITOPS_CD_URL}" ]]; then
+                    if [[ -z "${url}" ]]; then
                         exit 0
                     fi
-                    if [[ -z "${GITOPS_CD_BRANCH}" ]]; then
-                        GITOPS_CD_BRANCH="master"
+
+                    if [[ -z "${branch}" ]]; then
+                        branch="master"
                     fi
                     
                     . ./env-config
@@ -304,24 +313,21 @@ spec:
                     # This email is not used and it not valid, you can ignore but git requires it
                     git config --global user.email "jenkins@ibmcloud.com"
                     git config --global user.name "Jenkins Pipeline"
-                    
-                    git clone -b ${GITOPS_CD_BRANCH} ${GITOPS_CD_URL} gitops_cd
+
+                    GITOPS_CD_HOST=$(echo "${url}" | sed -E "s~http.*://(.*)/.*/.*~\1~g")
+
+                    git config credential.helper 'store --file ./.git-credentials'
+                    echo "https://${username}:${password}@${GITOPS_CD_HOST}" >> ./.git-credentials
+
+                    git clone -b ${branch} ${url} gitops_cd
                     cd gitops_cd
                     
                     echo "Requirements before update"
                     cat "./${IMAGE_NAME}/requirements.yaml"
-                    
-                    # Read the helm repo
-                    HELM_REPO=$(yq r ./${IMAGE_NAME}/requirements.yaml 'dependencies[0].repository')
-                    
-                    # Write the updated requirements.yaml
-                    echo "dependencies:" > ./requirements.yaml.tmp
-                    echo "  - name: ${IMAGE_NAME}" >> ./requirements.yaml.tmp
-                    echo "    version: ${IMAGE_BUILD_VERSION}" >> ./requirements.yaml.tmp
-                    echo "    repository: ${HELM_REPO}" >> ./requirements.yaml.tmp
-                    
-                    cp ./requirements.yaml.tmp "./${IMAGE_NAME}/requirements.yaml"
-                    
+
+                    npm i -g @garage-catalyst/ibm-garage-cloud-cli
+                    igc yq w ./${IMAGE_NAME}/requirements.yaml "dependencies[?(@.name == '${IMAGE_NAME}')].version" ${IMAGE_BUILD_VERSION} -i
+
                     echo "Requirements after update"
                     cat "./${IMAGE_NAME}/requirements.yaml"
                     
