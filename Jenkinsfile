@@ -316,6 +316,7 @@ spec:
 
                     GITOPS_CD_HOST=$(echo "${url}" | sed -E "s~http.*://(.*)/.*/.*~\1~g")
 
+                    # Store the credentials in .git-credentials so the credential helper can read them without prompting
                     git config credential.helper 'store --file ./.git-credentials'
                     echo "https://${username}:${password}@${GITOPS_CD_HOST}" >> ./.git-credentials
 
