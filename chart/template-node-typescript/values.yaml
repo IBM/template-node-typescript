@@ -4,6 +4,7 @@
 global: {}
 
 replicaCount: 1
+logLevel: "debug"
 
 image:
   repository: replace

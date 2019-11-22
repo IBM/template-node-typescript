@@ -45,6 +45,8 @@ spec:
               value: {{ include "template-node-typescript.host" . }}
             - name: PROTOCOLS
               value: {{ include "template-node-typescript.protocols" . }}
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
