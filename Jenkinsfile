@@ -83,6 +83,9 @@ spec:
       tty: true
       command: ["/bin/bash"]
       workingDir: ${workingDir}
+      env:
+        - name: HOME
+          value: /home/devops
       envFrom:
         - secretRef:
             name: gitops-cd-secret
@@ -297,32 +300,33 @@ spec:
             stage('Trigger CD Pipeline') {
                 sh '''#!/bin/bash
                     if [[ -z "${url}" ]]; then
+                        echo "'url' not set. Not triggering CD pipeline"
+                        exit 0
+                    fi
+                    if [[ -z "${host}" ]]; then
+                        echo "'host' not set. Not triggering CD pipeline"
                         exit 0
                     fi
 
                     if [[ -z "${branch}" ]]; then
                         branch="master"
                     fi
-                    
+
                     . ./env-config
-                    
+
                     if [[ -n "${BUILD_NUMBER}" ]]; then
                       IMAGE_BUILD_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
                     fi
-                    
-                    # This email is not used and it not valid, you can ignore but git requires it
+
+                    # This email is not used and is not valid, you can ignore but git requires it
                     git config --global user.email "jenkins@ibmcloud.com"
                     git config --global user.name "Jenkins Pipeline"
 
-                    GITOPS_CD_HOST=$(echo "${url}" | sed -E "s~http.*://(.*)/.*/.*~\1~g")
+                    GIT_URL="https://${username}:${password}@${host}/${org}/${repo}"
 
-                    # Store the credentials in .git-credentials so the credential helper can read them without prompting
-                    git config credential.helper 'store --file ./.git-credentials'
-                    echo "https://${username}:${password}@${GITOPS_CD_HOST}" >> ./.git-credentials
-
-                    git clone -b ${branch} ${url} gitops_cd
+                    git clone -b ${branch} ${GIT_URL} gitops_cd
                     cd gitops_cd
-                    
+
                     echo "Requirements before update"
                     cat "./${IMAGE_NAME}/requirements.yaml"
 
@@ -331,10 +335,10 @@ spec:
 
                     echo "Requirements after update"
                     cat "./${IMAGE_NAME}/requirements.yaml"
-                    
+
                     git add -u
                     git commit -m "Updates ${IMAGE_NAME} to ${IMAGE_BUILD_VERSION}"
-                    git push
+                    git push -v
                 '''
             }
         }
