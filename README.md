@@ -48,7 +48,7 @@ npm run start
 ### Deploying 
 
 Make sure you are logged into the IBM Cloud using the IBM Cloud CLI and have access 
-to you development cluster.
+to your development cluster.
 
 ```$bash
 npm i -g @garage-catalyst/ibm-garage-cloud-cli
