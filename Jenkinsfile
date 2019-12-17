@@ -21,7 +21,7 @@ def buildAgentName(String jobName, String buildNumber) {
 def buildLabel = buildAgentName(env.JOB_NAME, env.BUILD_NUMBER);
 def namespace = env.NAMESPACE ?: "dev"
 def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
-def workingDir = env.CLOUD_NAME == "openshift" ? "/home/jenkins" : "/home/jenkins/agent"
+def workingDir = "/home/jenkins/agent"
 podTemplate(
    label: buildLabel,
    cloud: cloudName,
