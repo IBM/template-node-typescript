@@ -60,8 +60,12 @@ kubectl get nodes
 
 Use the IBM Garage for Cloud CLI to register the GIT Repo with Jenkins environment 
 ```$bash
-igc pipeline
+igc pipeline -n dev
 ```
+
+## More Details
+
+For more details on how to use this Starter Kit Template please review the [IBM Garage for Cloud Developer Tools Developer Guide](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/)
 
 ## Next Steps
 
