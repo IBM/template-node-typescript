@@ -15,8 +15,12 @@ def buildAgentName(String jobName, String buildNumber) {
         jobName = jobName.substring(0, 55);
     }
 
+    println "Job Name:"+jobName
+    println "Build Name:"+buildNumber
+
     agentName = "a.${jobName}${buildNumber}".replace('_', '-').replace('/', '-').replace('-.', '.');
-    println agentName;
+
+    println "Agent:"+agentName;
 
     return agentName;
 }
