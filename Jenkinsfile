@@ -15,7 +15,10 @@ def buildAgentName(String jobName, String buildNumber) {
         jobName = jobName.substring(0, 55);
     }
 
-    return "a.${jobName}${buildNumber}".replace('_', '-').replace('/', '-').replace('-.', '.');
+    agentName = "a.${jobName}${buildNumber}".replace('_', '-').replace('/', '-').replace('-.', '.');
+    console.log(agentName);
+
+    return agentName;
 }
 
 def buildLabel = buildAgentName(env.JOB_NAME, env.BUILD_NUMBER);
