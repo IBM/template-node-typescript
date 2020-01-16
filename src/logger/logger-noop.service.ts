@@ -20,4 +20,7 @@ export class NoopLoggerService extends LoggerApi {
   child(childName: string): LoggerApi {
     return this;
   }
+
+  apply(app: { use: (app: any) => void }): void {
+  }
 }

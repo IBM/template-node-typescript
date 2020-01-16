@@ -1,6 +1,6 @@
 import * as express from 'express';
 import {Server} from 'typescript-rest';
-import {Config, Container} from 'typescript-ioc';
+import {Config, Container, Inject} from 'typescript-ioc';
 import fs = require('fs');
 import http = require('http');
 import path = require('path');
@@ -9,6 +9,7 @@ import {AddressInfo} from 'net';
 
 import {parseCsvString} from './util/string-util';
 import * as npmPackage from '../package.json';
+import {LoggerApi} from './logger';
 
 const config = npmPackage.config || {
   protocol: 'http',
@@ -19,14 +20,16 @@ const config = npmPackage.config || {
 const configApiContext = config['context-root'];
 
 export class ApiServer {
+  @Inject
+  logger: LoggerApi;
 
   // private readonly app: express.Application;
   private server: http.Server = null;
   public PORT: number = +process.env.PORT || npmPackage.config.port;
 
   constructor(private readonly app: express.Application = express(), apiContext = configApiContext) {
-    // this.app = express();
 
+    this.logger.apply(this.app);
     this.app.use(cors());
 
     Server.useIoC(true);

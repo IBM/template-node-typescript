@@ -1,16 +1,14 @@
-import {AutoWired, Provided, Provider, Provides, Singleton} from 'typescript-ioc';
-import * as BunyanLogger from 'bunyan';
-import * as PrettyStream from 'bunyan-prettystream';
+import {Provides, Singleton} from 'typescript-ioc';
+import * as pino from 'pino';
+import * as expressPino from 'express-pino-logger';
 
 import {LoggerApi} from './logger.api';
-
-const pkg = require('../../package.json');
 
 // tslint:disable
 class ChildLogger extends LoggerApi {
   private static _children: {[name: string]: LoggerApi} = {};
 
-  constructor(private logger: BunyanLogger) {
+  constructor(private logger: pino.Logger) {
     super();
   }
 
@@ -49,29 +47,20 @@ class ChildLogger extends LoggerApi {
 
     return ChildLogger._children[component] = new ChildLogger(this.logger.child({component}));
   }
+
+  apply(app: { use: (app: any) => void }): void {
+    app.use(expressPino());
+  }
 }
 
 @Provides(LoggerApi)
 @Singleton
-export class BunyanLoggerService extends ChildLogger {
+export class PinoLoggerService extends ChildLogger {
   constructor() {
-    super(BunyanLoggerService.buildBunyanLogger());
+    super(PinoLoggerService.buildLogger());
   }
 
-  static buildBunyanLogger() {
-    const prettyStdOut = new PrettyStream();
-    prettyStdOut.pipe(process.stdout);
-
-    return BunyanLogger.createLogger({
-      name: `${pkg.name}@${pkg.version}`,
-      streams: [
-        {
-          level:
-            (process.env.LOG_LEVEL as BunyanLogger.LogLevelString) || 'info',
-          stream: prettyStdOut,
-          type: 'raw',
-        },
-      ],
-    });
+  static buildLogger() {
+    return pino();
   }
 }

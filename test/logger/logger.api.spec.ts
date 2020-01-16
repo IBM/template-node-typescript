@@ -10,6 +10,7 @@ class MockLogger extends LoggerApi {
   error = jest.fn();
   trace = jest.fn();
   child = jest.fn();
+  apply = jest.fn();
 }
 
 describe('logger.api', () => {

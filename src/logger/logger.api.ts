@@ -9,6 +9,7 @@ export abstract class LoggerApi {
   abstract error(message: any, ...args: any): void;
   abstract trace(message: any, ...args: any): void;
   abstract child(name: string): LoggerApi;
+  abstract apply(app: {use: (app: any) => void}): void;
   time(action: string, startTime: number): void {
     const time = Date.now() - startTime;
     this.info(
