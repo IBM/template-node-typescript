@@ -54,7 +54,7 @@ to your development cluster.
 npm i -g @garage-catalyst/ibm-garage-cloud-cli
 ibmcloud login -a cloud.ibm.com -r <region> -g <resource group>
 ibmcloud ks cluster-config --cluster <cluster-name>
-kubectl get nodes
+kubectl get pods
 
 ```
 
