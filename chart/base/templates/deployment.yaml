@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "template-node-typescript.fullname" . }}
+  name: {{ include "starter-kit.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
-    helm.sh/chart: {{ include "template-node-typescript.chart" . }}
+    app.kubernetes.io/name: {{ include "starter-kit.name" . }}
+    helm.sh/chart: {{ include "starter-kit.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
+      app.kubernetes.io/name: {{ include "starter-kit.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "template-node-typescript.name" . }}
+        app.kubernetes.io/name: {{ include "starter-kit.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       {{- if .Values.image.secretName }}
@@ -42,9 +42,9 @@ spec:
               port: http
           env:
             - name: INGRESS_HOST
-              value: {{ include "template-node-typescript.host" . }}
+              value: {{ include "starter-kit.host" . }}
             - name: PROTOCOLS
-              value: {{ include "template-node-typescript.protocols" . }}
+              value: {{ include "starter-kit.protocols" . }}
             - name: LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
           resources:
