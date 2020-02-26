@@ -39,7 +39,7 @@ spec:
   serviceAccountName: jenkins
   containers:
     - name: node
-      image: node:11-stretch
+      image: node:12-stretch
       tty: true
       command: ["/bin/bash"]
       workingDir: ${workingDir}
