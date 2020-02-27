@@ -113,11 +113,11 @@ export class ApiServer {
   }
 
   get swaggerProtocols(): string[] {
-    return parseCsvString(process.env.PROTOCOLS, 'http');
+    return parseCsvString(process.env.PROTOCOLS, '');
   }
 
   get swaggerHost(): string {
-    return process.env.INGRESS_HOST || `localhost:${this.PORT}`;
+    return process.env.INGRESS_HOST || '';
   }
 }
 
