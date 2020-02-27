@@ -112,6 +112,10 @@ spec:
                     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ./env-config
 
                     cat ./env-config
+
+                    echo ""
+                    echo "Changed files in commit:"
+                    git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD)
                 '''
             }
             stage('Build') {
