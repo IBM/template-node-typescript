@@ -102,6 +102,23 @@ spec:
     node(buildLabel) {
         container(name: 'node', shell: '/bin/bash') {
             checkout scm
+            try {
+                stage('Check for changes') {
+                    sh '''
+                        echo "Changed files in commit:"
+                        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD))
+                        echo "${CHANGED_FILES}"
+
+                        if [[ "${CHANGED_FILES}" == "package.json" ]]; then
+                          exit 1
+                        fi
+                    '''
+                }
+            } catch (e) {
+                currentBuild.result = 'ABORTED'
+                echo('Aborting build')
+                return;
+            }
             stage('Setup') {
                 sh '''#!/bin/bash
                     # Export project name (lowercase), version, and build number to ./env-config
@@ -112,10 +129,6 @@ spec:
                     echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ./env-config
 
                     cat ./env-config
-
-                    echo ""
-                    echo "Changed files in commit:"
-                    git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD)
                 '''
             }
             stage('Build') {
