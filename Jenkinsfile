@@ -174,13 +174,15 @@ spec:
                         git config --global user.email "jenkins@ibmcloud.com"
                         git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USER; echo password=\\$GIT_AUTH_PWD; }; f"
 
+                        mkdir -p ~/.npm
+                        npm config set prefix ~/.npm
                         npm i -g release-it
 
                         if [[ "${BRANCH}" != "master" ]]; then
                             PRE_RELEASE="--preRelease=${BRANCH}"
                         fi
 
-                        release-it patch --ci --no-npm ${PRE_RELEASE} \
+                        npx release-it patch --ci --no-npm ${PRE_RELEASE} \
                           --git.push=false \
                           --git.tagName='v${version}' \
                           --hooks.after:git:release='git push origin v${version}' \
