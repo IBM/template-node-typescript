@@ -22,10 +22,21 @@ def buildAgentName(String jobNameWithNamespace, String buildNumber, String names
 }
 
 def removeNamespaceFromJobName(String jobName, String namespace) {
-    return jobName.replaceAll(namespace + "-", "");
+    return jobName.replaceAll(namespace + "-", "").replaceAll(jobName + "/", "");
 }
 
+def buildSecretName(String jobNameWithNamespace, String namespace) {
+    return jobNameWithNamespace.replaceAll(namespace + "/", "").toLowerCase();
+}
+
+def secretName = buildSecretName(env.JOB_NAME, env.NAMESPACE)
+println "Job name: ${env.JOB_NAME}"
+println "Secret name: ${secretName}"
+
+def abortedBuild = false
+
 def buildLabel = buildAgentName(env.JOB_NAME, env.BUILD_NUMBER, env.NAMESPACE);
+def branch = env.BRANCH ?: "master"
 def namespace = env.NAMESPACE ?: "dev"
 def cloudName = env.CLOUD_NAME == "openshift" ? "openshift" : "kubernetes"
 def workingDir = "/home/jenkins/agent"
@@ -56,6 +67,8 @@ spec:
       env:
         - name: HOME
           value: ${workingDir}
+        - name: BRANCH
+          value: ${branch}
     - name: ibmcloud
       image: docker.io/garagecatalyst/ibmcloud-dev:1.0.8
       tty: true
@@ -83,8 +96,6 @@ spec:
           value: /home/devops
         - name: ENVIRONMENT_NAME
           value: ${env.NAMESPACE}
-        - name: BUILD_NUMBER
-          value: ${env.BUILD_NUMBER}
     - name: trigger-cd
       image: docker.io/garagecatalyst/ibmcloud-dev:1.0.8
       tty: true
@@ -100,19 +111,24 @@ spec:
 """
 ) {
     node(buildLabel) {
+    try {
         container(name: 'node', shell: '/bin/bash') {
             checkout scm
-            stage('Setup') {
-                sh '''#!/bin/bash
-                    # Export project name (lowercase), version, and build number to ./env-config
-                    IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed "s/_/-/g")
+            try {
+                stage('Check for changes') {
+                    sh '''#!/bin/bash
+                        echo "Changed files in commit:"
+                        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD))
+                        echo "${CHANGED_FILES}"
 
-                    echo "IMAGE_NAME=${IMAGE_NAME}" > ./env-config
-                    npm run env | grep "^npm_package_version" | sed "s/npm_package_version/IMAGE_VERSION/g" >> ./env-config
-                    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ./env-config
-
-                    cat ./env-config
-                '''
+                        if [[ "${CHANGED_FILES}" == "package.json" ]]; then
+                          exit 1
+                        fi
+                    '''
+                }
+            } catch (e) {
+                abortedBuild = true
+                throw e;
             }
             stage('Build') {
                 sh '''#!/bin/bash
@@ -146,6 +162,35 @@ spec:
                 npm run sonarqube:scan --if-present
                 '''
             }
+            stage('Tag release') {
+                withCredentials([usernamePassword(credentialsId: secretName, passwordVariable: 'GIT_AUTH_PWD', usernameVariable: 'GIT_AUTH_USER')]) {
+                    sh '''#!/bin/bash
+                        set +x
+
+                        git checkout ${BRANCH}
+                        git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
+
+                        git config --global user.name "Jenkins Pipeline"
+                        git config --global user.email "jenkins@ibmcloud.com"
+                        git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USER; echo password=\\$GIT_AUTH_PWD; }; f"
+
+                        npm i -g release-it
+
+                        if [[ "${BRANCH}" != "master" ]]; then
+                            PRE_RELEASE="--preRelease=${BRANCH}"
+                        fi
+
+                        release-it patch --ci --no-npm ${PRE_RELEASE} \
+                          --git.push=false \
+                          --git.tagName='v${version}' \
+                          --hooks.after:git:release='git push origin v${version}' \
+                          --hooks.after:release='echo "IMAGE_VERSION=${version}" > ./env-config; echo "IMAGE_NAME=${repo.project}" >> ./env-config' \
+                          --verbose
+
+                        cat ./env-config
+                    '''
+                }
+            }
         }
         container(name: 'ibmcloud', shell: '/bin/bash') {
             stage('Build image') {
@@ -153,17 +198,11 @@ spec:
 
                     . ./env-config
 
+                    set +x
+
                     echo -e "=========================================================================================="
                     echo -e "BUILDING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}"
                     ibmcloud cr build -t ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION} .
-                    if [[ $? -ne 0 ]]; then
-                      exit 1
-                    fi
-
-                    if [[ -n "${BUILD_NUMBER}" ]]; then
-                        echo -e "BUILDING CONTAINER IMAGE: ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}"
-                        ibmcloud cr image-tag ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION} ${REGISTRY_URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}:${IMAGE_VERSION}-${BUILD_NUMBER}
-                    fi
                 '''
             }
             stage('Deploy to DEV env') {
@@ -179,7 +218,7 @@ spec:
                       cat "${CHART_ROOT}/${CHART_NAME}/Chart.yaml" | \
                           yq w - name "${IMAGE_NAME}" > "${CHART_ROOT}/${IMAGE_NAME}/Chart.yaml"
                     fi
-                    
+
                     CHART_PATH="${CHART_ROOT}/${IMAGE_NAME}"
 
                     echo "KUBECONFIG=${KUBECONFIG}"
@@ -187,13 +226,9 @@ spec:
                     RELEASE_NAME="${IMAGE_NAME}"
                     echo "RELEASE_NAME: $RELEASE_NAME"
 
-                    if [[ -n "${BUILD_NUMBER}" ]]; then
-                      IMAGE_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
-                    fi
-                    
                     echo "INITIALIZING helm with client-only (no Tiller)"
                     helm init --client-only 1> /dev/null 2> /dev/null
-                    
+
                     echo "CHECKING CHART (lint)"
                     helm lint ${CHART_PATH}
 
@@ -224,10 +259,10 @@ spec:
                         --namespace ${ENVIRONMENT_NAME} \
                         --set ingress.tlsSecretName="${TLS_SECRET_NAME}" \
                         --set ingress.subdomain="${INGRESS_SUBDOMAIN}" > ./release.yaml
-                    
+
                     echo -e "Generated release yaml for: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
                     cat ./release.yaml
-                    
+
                     echo -e "Deploying into: ${CLUSTER_NAME}/${ENVIRONMENT_NAME}."
                     kubectl apply -n ${ENVIRONMENT_NAME} -f ./release.yaml --validate=false
                 '''
@@ -266,10 +301,6 @@ spec:
 
                 . ./env-config
 
-                if [[ -n "${BUILD_NUMBER}" ]]; then
-                  IMAGE_BUILD_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
-                fi
-
                 if [[ -z "${ARTIFACTORY_ENCRPT}" ]]; then
                     echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
                     exit 1
@@ -288,7 +319,7 @@ spec:
                 fi;
 
                 # Package Helm Chart
-                helm package --version ${IMAGE_BUILD_VERSION} ${CHART_ROOT}/${IMAGE_NAME}
+                helm package --version ${IMAGE_VERSION} ${CHART_ROOT}/${IMAGE_NAME}
 
                 # Get the index and re index it with current Helm Chart
                 curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -O "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
@@ -305,7 +336,7 @@ spec:
                 fi;
 
                 # Persist the Helm Chart in Artifactory for us by ArgoCD
-                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T ${IMAGE_NAME}-${IMAGE_BUILD_VERSION}.tgz "${URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}-${IMAGE_BUILD_VERSION}.tgz"
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T ${IMAGE_NAME}-${IMAGE_VERSION}.tgz "${URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}-${IMAGE_VERSION}.tgz"
 
                 # Persist the Helm Chart in Artifactory for us by ArgoCD
                 curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T index.yaml "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
@@ -331,10 +362,6 @@ spec:
 
                     . ./env-config
 
-                    if [[ -n "${BUILD_NUMBER}" ]]; then
-                      IMAGE_BUILD_VERSION="${IMAGE_VERSION}-${BUILD_NUMBER}"
-                    fi
-
                     # This email is not used and is not valid, you can ignore but git requires it
                     git config --global user.email "jenkins@ibmcloud.com"
                     git config --global user.name "Jenkins Pipeline"
@@ -348,17 +375,25 @@ spec:
                     cat "./${IMAGE_NAME}/requirements.yaml"
 
                     npm i -g @garage-catalyst/ibm-garage-cloud-cli
-                    igc yq w ./${IMAGE_NAME}/requirements.yaml "dependencies[?(@.name == '${IMAGE_NAME}')].version" ${IMAGE_BUILD_VERSION} -i
+                    igc yq w ./${IMAGE_NAME}/requirements.yaml "dependencies[?(@.name == '${IMAGE_NAME}')].version" ${IMAGE_VERSION} -i
 
                     echo "Requirements after update"
                     cat "./${IMAGE_NAME}/requirements.yaml"
 
                     git add -u
-                    git commit -m "Updates ${IMAGE_NAME} to ${IMAGE_BUILD_VERSION}"
+                    git commit -m "Updates ${IMAGE_NAME} to ${IMAGE_VERSION}"
                     git push -v
                 '''
             }
         }
+    } catch (e) {
+        if (abortedBuild) {
+            currentBuild.result = 'ABORTED'
+            echo('Aborting build');
+            return;
+        }
+
+        throw e;
+    }
     }
 }
-
