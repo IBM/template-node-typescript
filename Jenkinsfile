@@ -185,6 +185,8 @@ spec:
                         npx release-it patch --ci --no-npm ${PRE_RELEASE} \
                           --git.push=false \
                           --git.tagName='v${version}' \
+                          --github.release=true \
+                          --gitlab.release=true \
                           --hooks.after:git:release='git push origin v${version}' \
                           --hooks.after:release='echo "IMAGE_VERSION=${version}" > ./env-config; echo "IMAGE_NAME=${repo.project}" >> ./env-config' \
                           --verbose
