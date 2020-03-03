@@ -182,7 +182,7 @@ spec:
                             PRE_RELEASE="--preRelease=${BRANCH}"
                         fi
 
-                        export GITHUG_TOKEN=$GIT_AUTH_PWD
+                        export GITHUB_TOKEN=$GIT_AUTH_PWD
                         npx release-it patch --ci --no-npm ${PRE_RELEASE} \
                           --git.push=false \
                           --git.tagName='v${version}' \
