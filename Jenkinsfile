@@ -26,14 +26,12 @@ def removeNamespaceFromJobName(String jobName, String namespace) {
 }
 
 def buildSecretName(String jobNameWithNamespace, String namespace) {
-    return jobNameWithNamespace.replaceAll(namespace + "/", "").replace(namespace + "-", "").toLowerCase();
+    return jobNameWithNamespace.replaceAll(namespace + "/", "").replace(namespace + "-", "").replace(".", "-").toLowerCase();
 }
 
 def secretName = buildSecretName(env.JOB_NAME, env.NAMESPACE)
 println "Job name: ${env.JOB_NAME}"
 println "Secret name: ${secretName}"
-
-def abortedBuild = false
 
 def buildLabel = buildAgentName(env.JOB_NAME, env.BUILD_NUMBER, env.NAMESPACE);
 def branch = env.BRANCH ?: "master"
@@ -113,18 +111,6 @@ spec:
     node(buildLabel) {
         container(name: 'node', shell: '/bin/bash') {
             checkout scm
-            stage('Setup') {
-                sh '''#!/bin/bash
-                    # Export project name (lowercase), version, and build number to ./env-config
-                    IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed "s/_/-/g")
-
-                    echo "IMAGE_NAME=${IMAGE_NAME}" > ./env-config
-                    npm run env | grep "^npm_package_version" | sed "s/npm_package_version/IMAGE_VERSION/g" >> ./env-config
-                    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ./env-config
-
-                    cat ./env-config
-                '''
-            }
             stage('Build') {
                 sh '''#!/bin/bash
                     npm install
@@ -177,13 +163,9 @@ spec:
                             PRE_RELEASE="--preRelease=${BRANCH}"
                         fi
 
-                        export GITHUB_TOKEN=$GIT_AUTH_PWD
-                        export GITLAB_TOKEN=$GIT_AUTH_PWD
-
                         npx release-it patch --ci --no-npm ${PRE_RELEASE} \
                           --git.push=false \
                           --git.tagName='v${version}' \
-                          --github.release=true \
                           --hooks.after:git:release='git push origin v${version}' \
                           --hooks.after:release='echo "IMAGE_VERSION=${version}" > ./env-config; echo "IMAGE_NAME=${repo.project}" >> ./env-config' \
                           --verbose
@@ -295,14 +277,14 @@ spec:
             stage('Package Helm Chart') {
                 sh '''#!/bin/bash
 
-                if [[ -z "${ARTIFACTORY_ENCRPT}" ]]; then
+                if [[ -z "${ARTIFACTORY_ENCRYPT}" ]]; then
                   echo "Skipping Artifactory step as Artifactory is not installed or configured"
                   exit 0
                 fi
 
                 . ./env-config
 
-                if [[ -z "${ARTIFACTORY_ENCRPT}" ]]; then
+                if [[ -z "${ARTIFACTORY_ENCRYPT}" ]]; then
                     echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
                     exit 1
                 fi
@@ -323,7 +305,7 @@ spec:
                 helm package --version ${IMAGE_VERSION} ${CHART_ROOT}/${IMAGE_NAME}
 
                 # Get the index and re index it with current Helm Chart
-                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -O "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRYPT} -O "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
 
                 if [[ $(cat index.yaml | jq '.errors[0].status') != "404" ]]; then
                     # Merge the chart index with the current index.yaml held in Artifactory
@@ -337,10 +319,10 @@ spec:
                 fi;
 
                 # Persist the Helm Chart in Artifactory for us by ArgoCD
-                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T ${IMAGE_NAME}-${IMAGE_VERSION}.tgz "${URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}-${IMAGE_VERSION}.tgz"
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRYPT} -i -vvv -T ${IMAGE_NAME}-${IMAGE_VERSION}.tgz "${URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}-${IMAGE_VERSION}.tgz"
 
                 # Persist the Helm Chart in Artifactory for us by ArgoCD
-                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T index.yaml "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRYPT} -i -vvv -T index.yaml "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
 
             '''
             }
