@@ -26,7 +26,7 @@ def removeNamespaceFromJobName(String jobName, String namespace) {
 }
 
 def buildSecretName(String jobNameWithNamespace, String namespace) {
-    return jobNameWithNamespace.replaceFirst(namespace + "/", "").replaceFirst(namespace + "-", "").replace(".", "-").toLowerCase();
+    return jobNameWithNamespace.replaceFirst(namespace + "/", "").replace(".", "-").toLowerCase();
 }
 
 def secretName = buildSecretName(env.JOB_NAME, env.NAMESPACE)
