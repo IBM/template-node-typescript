@@ -146,7 +146,7 @@ spec:
             stage('Tag release') {
                 withCredentials([usernamePassword(credentialsId: secretName, passwordVariable: 'GIT_AUTH_PWD', usernameVariable: 'GIT_AUTH_USER')]) {
                     sh '''#!/bin/bash
-                        set +x
+                        set -x
 
                         git fetch origin ${BRANCH} --tags
                         git checkout ${BRANCH}
