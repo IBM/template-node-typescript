@@ -159,7 +159,7 @@ spec:
 
                         mkdir -p ~/.npm
                         npm config set prefix ~/.npm
-                        npm i -g release-it@12.6.1
+                        npm i -g release-it
 
                         if [[ "${BRANCH}" != "master" ]]; then
                             PRE_RELEASE="--preRelease=${BRANCH}"
