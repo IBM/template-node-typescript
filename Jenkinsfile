@@ -165,7 +165,7 @@ spec:
                             PRE_RELEASE="--preRelease=${BRANCH}"
                         fi
 
-                        npx release-it patch --ci --no-npm ${PRE_RELEASE} \
+                        release-it patch --ci --no-npm ${PRE_RELEASE} \
                           --git.push=false \
                           --git.tagName='${version}' \
                           --hooks.after:git:release='git push origin ${version} --tags --force' \
