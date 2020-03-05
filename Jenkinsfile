@@ -148,6 +148,7 @@ spec:
                     sh '''#!/bin/bash
                         set +x
 
+                        git fetch origin ${BRANCH} --tags
                         git checkout ${BRANCH}
                         git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
 
