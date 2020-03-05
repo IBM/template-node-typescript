@@ -159,13 +159,14 @@ spec:
 
                         mkdir -p ~/.npm
                         npm config set prefix ~/.npm
+                        export PATH=$PATH:~/.npm/bin
                         npm i -g release-it
 
                         if [[ "${BRANCH}" != "master" ]]; then
                             PRE_RELEASE="--preRelease=${BRANCH}"
                         fi
 
-                        npx release-it patch --ci --no-npm ${PRE_RELEASE} \
+                        release-it patch --ci --no-npm ${PRE_RELEASE} \
                           --git.push=false \
                           --hooks.after:git:release='git push origin ${version}' \
                           --hooks.after:release='echo "IMAGE_VERSION=${version}" > ./env-config; echo "IMAGE_NAME=${repo.project}" >> ./env-config' \
