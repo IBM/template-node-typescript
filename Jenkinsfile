@@ -111,24 +111,19 @@ spec:
 """
 ) {
     node(buildLabel) {
-    try {
         container(name: 'node', shell: '/bin/bash') {
             checkout scm
-            try {
-                stage('Check for changes') {
-                    sh '''#!/bin/bash
-                        echo "Changed files in commit:"
-                        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD))
-                        echo "${CHANGED_FILES}"
+            stage('Setup') {
+                sh '''#!/bin/bash
+                    # Export project name (lowercase), version, and build number to ./env-config
+                    IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed "s/_/-/g")
 
-                        if [[ "${CHANGED_FILES}" == "package.json" ]]; then
-                          exit 1
-                        fi
-                    '''
-                }
-            } catch (e) {
-                abortedBuild = true
-                throw e;
+                    echo "IMAGE_NAME=${IMAGE_NAME}" > ./env-config
+                    npm run env | grep "^npm_package_version" | sed "s/npm_package_version/IMAGE_VERSION/g" >> ./env-config
+                    echo "BUILD_NUMBER=${BUILD_NUMBER}" >> ./env-config
+
+                    cat ./env-config
+                '''
             }
             stage('Build') {
                 sh '''#!/bin/bash
@@ -392,14 +387,5 @@ spec:
                 '''
             }
         }
-    } catch (e) {
-        if (abortedBuild) {
-            currentBuild.result = 'ABORTED'
-            echo('Aborting build');
-            return;
-        }
-
-        throw e;
-    }
     }
 }

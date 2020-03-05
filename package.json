@@ -2,7 +2,7 @@
   "name": "template-node-typescript",
   "version": "1.0.0",
   "org": "my-org",
-  "description": "",
+  "description": "Code pattern for starting a typescript-based microservice",
   "main": "index.js",
   "config": {
     "protocol": "http",
