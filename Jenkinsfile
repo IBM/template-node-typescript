@@ -26,7 +26,7 @@ def removeNamespaceFromJobName(String jobName, String namespace) {
 }
 
 def buildSecretName(String jobNameWithNamespace, String namespace) {
-    return jobNameWithNamespace.replaceFirst(namespace + "/", "").replace(".", "-").toLowerCase();
+    return jobNameWithNamespace.replaceFirst(namespace + "/", "").replaceFirst(namespace + "-", "").replace(".", "-").toLowerCase();
 }
 
 def secretName = buildSecretName(env.JOB_NAME, env.NAMESPACE)
@@ -67,6 +67,16 @@ spec:
           value: ${workingDir}
         - name: BRANCH
           value: ${branch}
+        - name: GIT_AUTH_USER
+          valueFrom:
+            secretKeyRef:
+              name: ${secretName}
+              key: username
+        - name: GIT_AUTH_PWD
+          valueFrom:
+            secretKeyRef:
+              name: ${secretName}
+              key: password
     - name: ibmcloud
       image: docker.io/garagecatalyst/ibmcloud-dev:1.0.8
       tty: true
@@ -144,35 +154,33 @@ spec:
                 '''
             }
             stage('Tag release') {
-                withCredentials([usernamePassword(credentialsId: secretName, passwordVariable: 'GIT_AUTH_PWD', usernameVariable: 'GIT_AUTH_USER')]) {
-                    sh '''#!/bin/bash
-                        set -x
-                        set -e
+                sh '''#!/bin/bash
+                    set -x
+                    set -e
 
-                        git fetch origin ${BRANCH} --tags
-                        git checkout ${BRANCH}
-                        git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
+                    git fetch origin ${BRANCH} --tags
+                    git checkout ${BRANCH}
+                    git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
 
-                        git config --global user.name "Jenkins Pipeline"
-                        git config --global user.email "jenkins@ibmcloud.com"
-                        git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USER; echo password=\\$GIT_AUTH_PWD; }; f"
+                    git config --global user.name "Jenkins Pipeline"
+                    git config --global user.email "jenkins@ibmcloud.com"
+                    git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USER; echo password=\\$GIT_AUTH_PWD; }; f"
 
-                        mkdir -p ~/.npm
-                        npm config set prefix ~/.npm
-                        export PATH=$PATH:~/.npm/bin
-                        npm i -g release-it
+                    mkdir -p ~/.npm
+                    npm config set prefix ~/.npm
+                    export PATH=$PATH:~/.npm/bin
+                    npm i -g release-it
 
-                        if [[ "${BRANCH}" != "master" ]]; then
-                            PRE_RELEASE="--preRelease=${BRANCH}"
-                        fi
+                    if [[ "${BRANCH}" != "master" ]]; then
+                        PRE_RELEASE="--preRelease=${BRANCH}"
+                    fi
 
-                        release-it patch --ci --no-npm ${PRE_RELEASE} \
-                          --hooks.after:release='echo "IMAGE_VERSION=${version}" > ./env-config; echo "IMAGE_NAME=${repo.project}" >> ./env-config' \
-                          --verbose
+                    release-it patch --ci --no-npm ${PRE_RELEASE} \
+                      --hooks.after:release='echo "IMAGE_VERSION=${version}" > ./env-config; echo "IMAGE_NAME=${repo.project}" >> ./env-config' \
+                      --verbose
 
-                        cat ./env-config
-                    '''
-                }
+                    cat ./env-config
+                '''
             }
         }
         container(name: 'ibmcloud', shell: '/bin/bash') {
