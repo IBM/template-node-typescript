@@ -26,14 +26,12 @@ def removeNamespaceFromJobName(String jobName, String namespace) {
 }
 
 def buildSecretName(String jobNameWithNamespace, String namespace) {
-    return jobNameWithNamespace.replaceAll(namespace + "/", "").toLowerCase();
+    return jobNameWithNamespace.replaceFirst(namespace + "/", "").replace(".", "-").toLowerCase();
 }
 
 def secretName = buildSecretName(env.JOB_NAME, env.NAMESPACE)
 println "Job name: ${env.JOB_NAME}"
 println "Secret name: ${secretName}"
-
-def abortedBuild = false
 
 def buildLabel = buildAgentName(env.JOB_NAME, env.BUILD_NUMBER, env.NAMESPACE);
 def branch = env.BRANCH ?: "master"
@@ -111,25 +109,8 @@ spec:
 """
 ) {
     node(buildLabel) {
-    try {
         container(name: 'node', shell: '/bin/bash') {
             checkout scm
-            try {
-                stage('Check for changes') {
-                    sh '''#!/bin/bash
-                        echo "Changed files in commit:"
-                        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD))
-                        echo "${CHANGED_FILES}"
-
-                        if [[ "${CHANGED_FILES}" == "package.json" ]]; then
-                          exit 1
-                        fi
-                    '''
-                }
-            } catch (e) {
-                abortedBuild = true
-                throw e;
-            }
             stage('Build') {
                 sh '''#!/bin/bash
                     npm install
@@ -165,8 +146,10 @@ spec:
             stage('Tag release') {
                 withCredentials([usernamePassword(credentialsId: secretName, passwordVariable: 'GIT_AUTH_PWD', usernameVariable: 'GIT_AUTH_USER')]) {
                     sh '''#!/bin/bash
-                        set +x
+                        set -x
+                        set -e
 
+                        git fetch origin ${BRANCH} --tags
                         git checkout ${BRANCH}
                         git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
 
@@ -176,16 +159,16 @@ spec:
 
                         mkdir -p ~/.npm
                         npm config set prefix ~/.npm
+                        export PATH=$PATH:~/.npm/bin
                         npm i -g release-it
 
                         if [[ "${BRANCH}" != "master" ]]; then
                             PRE_RELEASE="--preRelease=${BRANCH}"
                         fi
 
-                        npx release-it patch --ci --no-npm ${PRE_RELEASE} \
+                        release-it patch --ci --no-npm ${PRE_RELEASE} \
                           --git.push=false \
-                          --git.tagName='v${version}' \
-                          --hooks.after:git:release='git push origin v${version}' \
+                          --hooks.after:git:release='git push origin ${version}' \
                           --hooks.after:release='echo "IMAGE_VERSION=${version}" > ./env-config; echo "IMAGE_NAME=${repo.project}" >> ./env-config' \
                           --verbose
 
@@ -284,7 +267,7 @@ spec:
                     # sleep for 10 seconds to allow enough time for the server to start
                     sleep 30
 
-                    if [ $(curl -sL -w "%{http_code}\\n" "${URL}/health" -o /dev/null --connect-timeout 3 --max-time 5 --retry 3 --retry-max-time 30) == "200" ]; then
+                    if [[ $(curl -sL -w "%{http_code}\\n" "${URL}/health" -o /dev/null --connect-timeout 3 --max-time 5 --retry 3 --retry-max-time 30) == "200" ]]; then
                         echo "Successfully reached health endpoint: ${URL}/health"
                         echo "====================================================================="
                     else
@@ -296,14 +279,14 @@ spec:
             stage('Package Helm Chart') {
                 sh '''#!/bin/bash
 
-                if [[ -z "${ARTIFACTORY_ENCRPT}" ]]; then
+                if [[ -z "${ARTIFACTORY_ENCRYPT}" ]]; then
                   echo "Skipping Artifactory step as Artifactory is not installed or configured"
                   exit 0
                 fi
 
                 . ./env-config
 
-                if [[ -z "${ARTIFACTORY_ENCRPT}" ]]; then
+                if [[ -z "${ARTIFACTORY_ENCRYPT}" ]]; then
                     echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
                     exit 1
                 fi
@@ -324,7 +307,7 @@ spec:
                 helm package --version ${IMAGE_VERSION} ${CHART_ROOT}/${IMAGE_NAME}
 
                 # Get the index and re index it with current Helm Chart
-                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -O "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRYPT} -O "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
 
                 if [[ $(cat index.yaml | jq '.errors[0].status') != "404" ]]; then
                     # Merge the chart index with the current index.yaml held in Artifactory
@@ -338,10 +321,10 @@ spec:
                 fi;
 
                 # Persist the Helm Chart in Artifactory for us by ArgoCD
-                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T ${IMAGE_NAME}-${IMAGE_VERSION}.tgz "${URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}-${IMAGE_VERSION}.tgz"
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRYPT} -i -vvv -T ${IMAGE_NAME}-${IMAGE_VERSION}.tgz "${URL}/${REGISTRY_NAMESPACE}/${IMAGE_NAME}-${IMAGE_VERSION}.tgz"
 
                 # Persist the Helm Chart in Artifactory for us by ArgoCD
-                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRPT} -i -vvv -T index.yaml "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
+                curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_ENCRYPT} -i -vvv -T index.yaml "${URL}/${REGISTRY_NAMESPACE}/index.yaml"
 
             '''
             }
@@ -388,14 +371,5 @@ spec:
                 '''
             }
         }
-    } catch (e) {
-        if (abortedBuild) {
-            currentBuild.result = 'ABORTED'
-            echo('Aborting build');
-            return;
-        }
-
-        throw e;
-    }
     }
 }
