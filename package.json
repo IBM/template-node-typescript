@@ -63,7 +63,7 @@
     "jest": "^24.7.1",
     "jest-plugin-context": "^2.9.0",
     "jest-sonar-reporter": "^2.0.0",
-    "npm-check": "^5.9.0",
+    "npm-check": "^5.9.2",
     "pino-pretty": "^3.5.0",
     "rimraf": "^2.6.3",
     "sonarqube-scanner": "^2.5.0",
