@@ -32,8 +32,6 @@ export class ApiServer {
     this.logger.apply(this.app);
     this.app.use(cors());
 
-    Server.useIoC(true);
-
     if (!apiContext || apiContext === '/') {
       this.app.use(express.static(path.join(process.cwd(), 'public'), { maxAge: 31557600000 }));
     } else {

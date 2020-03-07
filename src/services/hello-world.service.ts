@@ -1,9 +1,7 @@
 import {HelloWorldApi} from './hello-world.api';
-import {Inject, Provides, Singleton} from 'typescript-ioc';
+import {Inject} from 'typescript-ioc';
 import {LoggerApi} from '../logger';
 
-@Singleton
-@Provides(HelloWorldApi)
 export class HelloWorldService implements HelloWorldApi {
   logger: LoggerApi;
 

@@ -1,8 +1,5 @@
-import {AutoWired, Singleton} from 'typescript-ioc';
-import {GET, Path,Accept,ContextAccept} from 'typescript-rest';
+import {GET, Path} from 'typescript-rest';
 
-@AutoWired
-@Singleton
 @Path('/health')
 export class HealthController {
 
