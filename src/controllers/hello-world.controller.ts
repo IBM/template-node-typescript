@@ -1,10 +1,8 @@
 import {GET, Path, PathParam} from 'typescript-rest';
-import {AutoWired, Inject, Singleton} from 'typescript-ioc';
+import {Inject} from 'typescript-ioc';
 import {HelloWorldApi} from '../services';
 import {LoggerApi} from '../logger';
 
-@AutoWired
-@Singleton
 @Path('/hello')
 export class HelloWorldController {
 

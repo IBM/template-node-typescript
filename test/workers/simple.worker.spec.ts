@@ -15,7 +15,7 @@ describe('simple.worker', () => {
     beforeEach(() => {
       Container
         .bind(SimpleWorkerConfig)
-        .provider({get: () => ({runInterval: 500})});
+        .factory(() => ({runInterval: 500}));
       Container
         .bind(LoggerApi)
         .to(NoopLoggerService);

@@ -1,4 +1,3 @@
-import {Provides, Singleton} from 'typescript-ioc';
 import * as pino from 'pino';
 import * as expressPino from 'express-pino-logger';
 
@@ -53,8 +52,6 @@ class ChildLogger extends LoggerApi {
   }
 }
 
-@Provides(LoggerApi)
-@Singleton
 export class PinoLoggerService extends ChildLogger {
   constructor() {
     super(PinoLoggerService.buildLogger());
