@@ -327,6 +327,7 @@ spec:
             }
             stage('Health Check') {
                 sh '''#!/bin/bash
+                    set +x
                     . ./env-config
 
                     if [[ "${CLUSTER_TYPE}" == "openshift" ]]; then
