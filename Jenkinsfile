@@ -361,8 +361,8 @@ spec:
                 . ./env-config
 
                 if [[ -z "${ARTIFACTORY_ENCRYPT}" ]]; then
-                    echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
-                    exit 1
+                    echo "Encryption key not available for Jenkins pipeline, please add it to the artifactory-access"
+                    exit 0
                 fi
 
                 # Check if a Generic Local Repo has been created and retrieve the URL for it
