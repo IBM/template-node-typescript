@@ -213,7 +213,7 @@ spec:
                     git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
 
                     if [[ "${BRANCH}" == "master" ]] && [[ $(git describe --tag `git rev-parse HEAD`) =~ (^[0-9]+.[0-9]+.[0-9]+$) ]] || \
-                       [[ $(git describe --tag `git rev-parse HEAD`) =~ (^[0-9]+.[0-9]+.[0-9]+-.*[.][0-9]+$) ]]
+                       [[ $(git describe --tag `git rev-parse HEAD`) =~ (^[0-9]+.[0-9]+.[0-9]+-${BRANCH}[.][0-9]+$) ]]
                     then
                         echo "Latest commit is already tagged"
                         echo "IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')" > ./env-config
