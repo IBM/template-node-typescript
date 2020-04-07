@@ -208,6 +208,16 @@ spec:
                     set -x
                     set -e
 
+                    echo "IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')" > ./env-config
+
+                    if [[ "${BRANCH}" == "master" ]] && [[ $(git describe --tag `git rev-parse HEAD`) =~ "^[0-9]+.[0-9]+.[0-9]+$" ]] || \
+                       [[ $(git describe --tag `git rev-parse HEAD`) =~ "^[0-9]+.[0-9]+.[0-9]+-${BRANCH}.[0-9]+$" ]]
+                    then
+                        echo "Latest commit is already tagged"
+                        echo "IMAGE_VERSION=$(git describe --abbrev=0 --tags)" >> ./env-config
+                        exit 0
+                    fi
+
                     git fetch origin ${BRANCH} --tags
                     git checkout ${BRANCH}
                     git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
@@ -232,8 +242,7 @@ spec:
                       --verbose \
                       -VV
 
-                    echo "IMAGE_VERSION=$(git describe --abbrev=0 --tags)" > ./env-config
-                    echo "IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')" >> ./env-config
+                    echo "IMAGE_VERSION=$(git describe --abbrev=0 --tags)" >> ./env-config
 
                     cat ./env-config
                 '''
