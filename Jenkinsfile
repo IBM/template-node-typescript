@@ -208,6 +208,10 @@ spec:
                     set -x
                     set -e
 
+                    git fetch origin ${BRANCH} --tags
+                    git checkout ${BRANCH}
+                    git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
+
                     echo "IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')" > ./env-config
 
                     if [[ "${BRANCH}" == "master" ]] && [[ $(git describe --tag `git rev-parse HEAD`) =~ "^[0-9]+.[0-9]+.[0-9]+$" ]] || \
@@ -217,10 +221,6 @@ spec:
                         echo "IMAGE_VERSION=$(git describe --abbrev=0 --tags)" >> ./env-config
                         exit 0
                     fi
-
-                    git fetch origin ${BRANCH} --tags
-                    git checkout ${BRANCH}
-                    git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
 
                     git config --global user.name "Jenkins Pipeline"
                     git config --global user.email "jenkins@ibmcloud.com"
