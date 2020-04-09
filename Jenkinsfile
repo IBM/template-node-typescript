@@ -75,13 +75,15 @@ spec:
             secretKeyRef:
               name: git-credentials
               key: username
+              optional: true
         - name: GIT_AUTH_PWD
           valueFrom:
             secretKeyRef:
               name: git-credentials
               key: password
+              optional: true
     - name: buildah
-      image: quay.io/buildah/stable:v1.9.2
+      image: quay.io/buildah/stable:v1.9.0
       tty: true
       command: ["/bin/bash"]
       workingDir: ${workingDir}
@@ -208,9 +210,15 @@ spec:
                     set -x
                     set -e
 
-                    git fetch origin ${BRANCH} --tags
+                    git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USER; echo password=\\$GIT_AUTH_PWD; }; f"
+
+                    git fetch --unshallow
+                    git fetch --tags
                     git checkout ${BRANCH}
                     git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
+
+                    git config --global user.name "Jenkins Pipeline"
+                    git config --global user.email "jenkins@ibmcloud.com"
 
                     if [[ "${BRANCH}" == "master" ]] && [[ $(git describe --tag `git rev-parse HEAD`) =~ (^[0-9]+.[0-9]+.[0-9]+$) ]] || \
                        [[ $(git describe --tag `git rev-parse HEAD`) =~ (^[0-9]+.[0-9]+.[0-9]+-${BRANCH}[.][0-9]+$) ]]
@@ -220,10 +228,6 @@ spec:
                         echo "IMAGE_VERSION=$(git describe --abbrev=0 --tags)" >> ./env-config
                         exit 0
                     fi
-
-                    git config --global user.name "Jenkins Pipeline"
-                    git config --global user.email "jenkins@ibmcloud.com"
-                    git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USER; echo password=\\$GIT_AUTH_PWD; }; f"
 
                     mkdir -p ~/.npm
                     npm config set prefix ~/.npm
@@ -241,8 +245,8 @@ spec:
                       --verbose \
                       -VV
 
-                    echo "IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')" > ./env-config
-                    echo "IMAGE_VERSION=$(git describe --abbrev=0 --tags)" >> ./env-config
+                    echo "IMAGE_VERSION=$(git describe --abbrev=0 --tags)" > ./env-config
+                    echo "IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')" >> ./env-config
 
                     cat ./env-config
                 '''
@@ -336,7 +340,6 @@ spec:
             }
             stage('Health Check') {
                 sh '''#!/bin/bash
-                    set +x
                     . ./env-config
 
                     if [[ "${CLUSTER_TYPE}" == "openshift" ]]; then
@@ -370,8 +373,8 @@ spec:
                 . ./env-config
 
                 if [[ -z "${ARTIFACTORY_ENCRYPT}" ]]; then
-                    echo "Encryption key not available for Jenkins pipeline, please add it to the artifactory-access"
-                    exit 0
+                    echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
+                    exit 1
                 fi
 
                 # Check if a Generic Local Repo has been created and retrieve the URL for it
