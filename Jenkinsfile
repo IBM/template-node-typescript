@@ -211,7 +211,8 @@ spec:
                     set -e
 
                     if [[ -z "$GIT_AUTH_USER" ]] || [[ -z "$GIT_AUTH_PWD" ]]; then
-                      echo "Git credentials not found. Store your git credentials in a secret named 'git-credentials'."
+                      echo "Git credentials not found. The pipeline expects to find them in a secret named 'git-credentials'."
+                      echo "  Update your CLI and register the pipeline again"
                       exit 1
                     fi
 
@@ -378,8 +379,8 @@ spec:
                 . ./env-config
 
                 if [[ -z "${ARTIFACTORY_ENCRYPT}" ]]; then
-                    echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
-                    exit 0
+                    echo "It looks like your Artifactory installation is not complete. Please complete the steps found here - http://ibm.biz/complete-setup"
+                    exit 1
                 fi
 
                 # Check if a Generic Local Repo has been created and retrieve the URL for it
