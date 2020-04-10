@@ -210,6 +210,11 @@ spec:
                     set -x
                     set -e
 
+                    if [[ -z "$GIT_AUTH_USER" ]] || [[ -z "$GIT_AUTH_PWD" ]]; then
+                      echo "Git credentials not found. Store your git credentials in a secret named 'git-credentials'."
+                      exit 1
+                    fi
+
                     git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USER; echo password=\\$GIT_AUTH_PWD; }; f"
 
                     git fetch origin ${BRANCH}
@@ -374,7 +379,7 @@ spec:
 
                 if [[ -z "${ARTIFACTORY_ENCRYPT}" ]]; then
                     echo "Encrption key not available for Jenkins pipeline, please add it to the artifactory-access"
-                    exit 1
+                    exit 0
                 fi
 
                 # Check if a Generic Local Repo has been created and retrieve the URL for it
