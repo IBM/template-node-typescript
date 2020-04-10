@@ -41,6 +41,7 @@ def workingDir = "/home/jenkins/agent"
 podTemplate(
    label: buildLabel,
    cloud: cloudName,
+   namespace: namespace,
    yaml: """
 apiVersion: v1
 kind: Pod
