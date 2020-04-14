@@ -2,6 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "starter-kit.fullname" . }}
+  {{- if and .Values.vcsInfo.repoUrl .Values.vcsInfo.branch }}
+  annotations:
+    app.openshift.io/vcs-ref: {{ .Values.vcsInfo.branch }}
+    app.openshift.io/vcs-uri: {{ .Values.vcsInfo.repoUrl }}
+  {{- end }}
   labels:
     app.kubernetes.io/name: {{ include "starter-kit.name" . }}
     helm.sh/chart: {{ include "starter-kit.chart" . }}

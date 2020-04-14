@@ -35,3 +35,7 @@ ingress:
   path: "/"
 
 #  tlsSecretName: ""
+
+vcsInfo:
+  repoUrl: ""
+  branch: ""

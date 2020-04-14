@@ -153,6 +153,8 @@ spec:
           value: /home/devops
         - name: ENVIRONMENT_NAME
           value: ${env.NAMESPACE}
+        - name: BRANCH
+          value: ${branch}
     - name: trigger-cd
       image: docker.io/garagecatalyst/ibmcloud-dev:1.0.10
       tty: true
@@ -175,7 +177,7 @@ spec:
             checkout scm
             stage('Build') {
                 sh '''#!/bin/bash
-                    npm install
+                    npm install --unsafe-perm
                     npm run build --if-present
                 '''
             }
@@ -253,6 +255,7 @@ spec:
 
                     echo "IMAGE_VERSION=$(git describe --abbrev=0 --tags)" > ./env-config
                     echo "IMAGE_NAME=$(basename -s .git `git config --get remote.origin.url` | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g')" >> ./env-config
+                    echo "REPO_URL=$(git config --get remote.origin.url)" >> ./env-config
 
                     cat ./env-config
                 '''
@@ -323,6 +326,8 @@ spec:
                     cat ${CHART_PATH}/values.yaml | \
                         yq w - nameOverride "${IMAGE_NAME}" | \
                         yq w - fullnameOverride "${IMAGE_NAME}" | \
+                        yq w - vcsInfo.repoUrl "${REPO_URL}" | \
+                        yq w - vcsInfo.branch "${BRANCH}" | \
                         yq w - image.repository "${IMAGE_REPOSITORY}" | \
                         yq w - image.tag "${IMAGE_VERSION}" | \
                         yq w - ingress.enabled "${INGRESS_ENABLED}" | \
