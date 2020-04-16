@@ -4,6 +4,8 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: {{ $fullName }}
+  annotations:
+    argocd.argoproj.io/sync-options: Validate=false
 spec:
   to:
     kind: Service

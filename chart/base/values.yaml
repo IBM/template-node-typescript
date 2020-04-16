@@ -39,3 +39,9 @@ ingress:
 vcsInfo:
   repoUrl: ""
   branch: ""
+
+partOf: ""
+
+connectsTo: ""
+
+runtime: nodejs

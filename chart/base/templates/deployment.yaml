@@ -2,16 +2,25 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "starter-kit.fullname" . }}
-  {{- if and .Values.vcsInfo.repoUrl .Values.vcsInfo.branch }}
   annotations:
+  {{- if and .Values.vcsInfo.repoUrl .Values.vcsInfo.branch }}
     app.openshift.io/vcs-ref: {{ .Values.vcsInfo.branch }}
     app.openshift.io/vcs-uri: {{ .Values.vcsInfo.repoUrl }}
+  {{- end }}
+  {{- if .Values.connectsTo }}
+    app.openshift.io/connects-to: {{ .Values.connectsTo }}
   {{- end }}
   labels:
     app.kubernetes.io/name: {{ include "starter-kit.name" . }}
     helm.sh/chart: {{ include "starter-kit.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app: {{ .Release.Name }}
+    {{- if .Values.partOf }}
+    app.kubernetes.io/part-of: {{ .Values.partOf }}
+    {{- end}}
+    {{- if .Values.runtime }}
+    app.openshift.io/runtime: {{ .Values.runtime }}
+    {{- end}}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
