@@ -1,4 +1,4 @@
-def pipelineVersion='1.1.1'
+def pipelineVersion='1.1.3'
 println "Pipeline version: ${pipelineVersion}"
 /*
  * This is a vanilla Jenkins pipeline that relies on the Jenkins kubernetes plugin to dynamically provision agents for
@@ -226,8 +226,10 @@ spec:
                     git fetch --tags
                     git tag -l
 
+                    COMMIT_HASH=$(git rev-parse HEAD)
                     git checkout -b ${BRANCH} --track origin/${BRANCH}
                     git branch --set-upstream-to=origin/${BRANCH} ${BRANCH}
+                    git reset --hard ${COMMIT_HASH}
 
                     git config --global user.name "Jenkins Pipeline"
                     git config --global user.email "jenkins@ibmcloud.com"
@@ -372,10 +374,12 @@ spec:
 
                     # sleep for 10 seconds to allow enough time for the server to start
                     sleep 10
-                    while [ $(curl -sL -w "%{http_code}\\n" "${URL}/health" -o /dev/null --connect-timeout 3 --max-time 5 --retry 3 --retry-max-time 30) != "200" ]; do
+                    echo "Health check start"
+                    while [[ $(curl -sL -w "%{http_code}\\n" "${URL}/health" -o /dev/null --connect-timeout 3 --max-time 5 --retry 3 --retry-max-time 30) != "200" ]]; do
                         sleep 30
+                        echo "Health check failure. Remaining retries: $sleep_countdown"
                         sleep_countdown=$((sleep_countdown-1))
-                        if [ sleep_countdown=0 ]; then
+                        if [[ $sleep_countdown -eq 0 ]]; then
                                 echo "Could not reach health endpoint: ${URL}/health"
                                 exit 1;
                         fi
