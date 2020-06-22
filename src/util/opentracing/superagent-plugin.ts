@@ -1,10 +1,14 @@
 import {Plugin, SuperAgentRequest} from 'superagent';
 import {FORMAT_HTTP_HEADERS, globalTracer, Span, Tags, Tracer} from 'opentracing';
 
-export function isSpan(context: any): context is Span {
-  return !!context && !!context.tracer && !!context.setTag;
-}
+import {isSpan} from './guards';
 
+/*
+ This component provides a plugin to inject the opentracing headers into a superagent request
+
+ Usage:
+   superagent.get(url).use(opentracingPlugin(span));
+ */
 export function opentracingPlugin(childOf?: Span): Plugin {
 
   const span: Span = globalTracer().startSpan(
