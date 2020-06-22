@@ -20,7 +20,7 @@ describe('server', () => {
         test('then pass apiContext to use()', () => {
           const useMock = apiServer.getApp().use as Mock;
 
-          expect(useMock.mock.calls[2][0]).toEqual(apiContext);
+          expect(useMock.mock.calls[3][0]).toEqual(apiContext);
         });
       });
     });

@@ -1,7 +1,6 @@
-import {Tags} from 'opentracing';
-import {SpanApi} from '../../span-logger';
+import {Span, Tags} from 'opentracing';
 
-export function traceError(span: SpanApi, error: Error, reThrow?: boolean, message?: string, context?: any) {
+export function traceError(span: Span, error: Error, reThrow?: boolean, message?: string, context?: any) {
   span.setTag(Tags.ERROR, true);
   span.log(errorEvent(message, context, error));
 
@@ -10,11 +9,11 @@ export function traceError(span: SpanApi, error: Error, reThrow?: boolean, messa
   }
 }
 
-export function traceStart<T = any>(span: SpanApi, context?: T) {
+export function traceStart<T = any>(span: Span, context?: T) {
   span.log(startEvent('Start', context));
 }
 
-export function traceResponse<T extends {response: any}>(span: SpanApi, context: T) {
+export function traceResponse<T extends {response: any}>(span: Span, context: T) {
   span.log(responseEvent('Response', context));
 }
 
