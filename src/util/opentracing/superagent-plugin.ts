@@ -37,5 +37,8 @@ export function opentracingPlugin(childOf?: Span): Plugin {
     req.on('response', (res: Response) => {
       span.setTag(Tags.HTTP_STATUS_CODE, res.status);
     });
+    req.on('end', () => {
+      span.finish();
+    });
   };
 }
