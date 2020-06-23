@@ -36,6 +36,9 @@ ingress:
 
 #  tlsSecretName: ""
 
+jaegerConfigName: jaeger-config
+jaegerSecretName: jaeger-access
+
 vcsInfo:
   repoUrl: ""
   branch: ""

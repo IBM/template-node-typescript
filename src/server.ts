@@ -1,15 +1,17 @@
 import * as express from 'express';
 import {Server} from 'typescript-rest';
-import {Config, Container, Inject} from 'typescript-ioc';
+import {Inject} from 'typescript-ioc';
+import {AddressInfo} from 'net';
+
+import * as npmPackage from '../package.json';
+import {parseCsvString} from './util/string-util';
+import {LoggerApi} from './logger';
+import {TracerApi} from './tracer';
+import {opentracingMiddleware} from './util/opentracing/express-middleware';
 import fs = require('fs');
 import http = require('http');
 import path = require('path');
 import cors = require('cors');
-import {AddressInfo} from 'net';
-
-import {parseCsvString} from './util/string-util';
-import * as npmPackage from '../package.json';
-import {LoggerApi} from './logger';
 
 const config = npmPackage.config || {
   protocol: 'http',
@@ -22,6 +24,8 @@ const configApiContext = config['context-root'];
 export class ApiServer {
   @Inject
   logger: LoggerApi;
+  @Inject
+  tracer: TracerApi;
 
   // private readonly app: express.Application;
   private server: http.Server = null;
@@ -29,6 +33,7 @@ export class ApiServer {
 
   constructor(private readonly app: express.Application = express(), apiContext = configApiContext) {
 
+    this.app.use(opentracingMiddleware({tracer: this.tracer}));
     this.logger.apply(this.app);
     this.app.use(cors());
 
@@ -118,4 +123,3 @@ export class ApiServer {
     return process.env.INGRESS_HOST || '';
   }
 }
-

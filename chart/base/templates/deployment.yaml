@@ -41,7 +41,6 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-
           ports:
             - name: http
               containerPort: {{ .Values.image.port }}
@@ -61,6 +60,13 @@ spec:
               value: ""
             - name: LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
+          envFrom:
+            - configMapRef:
+                name: {{ default "jaeger-config" .Values.jaegerConfigName }}
+                optional: true
+            - secretRef:
+                name: {{ default "jaeger-access" .Values.jaegerSecretName }}
+                optional: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
