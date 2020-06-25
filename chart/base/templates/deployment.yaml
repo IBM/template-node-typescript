@@ -54,10 +54,11 @@ spec:
               path: /
               port: http
           env:
-            - name: INGRESS_HOST
-              value: ""
-            - name: PROTOCOLS
-              value: ""
+            - name: IMAGE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
             - name: LOG_LEVEL
               value: {{ .Values.logLevel | quote }}
           envFrom:

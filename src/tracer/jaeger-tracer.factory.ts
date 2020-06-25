@@ -1,12 +1,13 @@
 import {Container, ObjectFactory} from 'typescript-ioc';
-import {initTracerFromEnv, JaegerTracer, TracingConfig, TracingOptions} from 'jaeger-client'
-import {globalTracer, initGlobalTracer, Tracer} from 'opentracing';
+import {initTracerFromEnv, JaegerTracer, TracingConfig, TracingOptions, ZipkinB3TextMapCodec} from 'jaeger-client'
+import {FORMAT_HTTP_HEADERS, initGlobalTracer, Tracer} from 'opentracing';
 
 import {LoggerApi} from '../logger';
 
 const packageConfig = require('../../package.json');
 
-function initTracer(): Tracer {
+let tracer: JaegerTracer;
+function initTracer(): JaegerTracer {
   const tags = {};
   tags[`${packageConfig.name}.version`] = packageConfig.version;
 
@@ -23,16 +24,24 @@ function initTracer(): Tracer {
     logger,
   };
 
-  const tracer: JaegerTracer = initTracerFromEnv(config, options);
+  tracer = initTracerFromEnv(config, options);
+
+  const codec = new ZipkinB3TextMapCodec({ urlEncoding: true });
+
+  tracer.registerInjector(FORMAT_HTTP_HEADERS, codec);
+  tracer.registerExtractor(FORMAT_HTTP_HEADERS, codec);
 
   initGlobalTracer(tracer);
 
   return tracer;
 }
-initTracer();
 
 const jaegerTracerFactory: ObjectFactory = () => {
-  return globalTracer();
+  if (!tracer) {
+    tracer = initTracer();
+  }
+
+  return tracer;
 }
 
 export default jaegerTracerFactory;
