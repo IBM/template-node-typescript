@@ -3,7 +3,7 @@ import * as expressPino from 'express-pino-logger';
 
 import {LoggerApi} from './logger.api';
 import {getNamespace} from 'cls-hooked';
-import {TraceConstants} from '../util/trace-constants';
+import {TraceConstants} from '../util/opentracing/trace-constants';
 
 // tslint:disable
 class ChildLogger extends LoggerApi {
