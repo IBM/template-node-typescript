@@ -40,7 +40,7 @@ class ChildLogger extends LoggerApi {
   }
 
   child(component: string): LoggerApi {
-    const clsNamespace = getNamespace(TraceConstants.TRACE_NAMESPACE);
+    const clsNamespace = getNamespace(TraceConstants.NAMESPACE);
 
     const traceContext = clsNamespace ? clsNamespace.get(TraceConstants.TRACE_CONTEXT) : {};
 
