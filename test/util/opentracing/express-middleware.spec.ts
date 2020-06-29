@@ -21,13 +21,15 @@ describe('express-middelware', () => {
     });
 
     describe('when context contains uber-trace-id', () => {
-      test('then return {traceId, spanId}', async () => {
+      test('then return {traceId, spanId, parentSpanId, flags}', async () => {
         const traceId = 'traceid';
         const spanId = 'spanid';
+        const parentSpanId = '0';
+        const flags = '0';
 
-        const context = {'uber-trace-id': `${traceId}:${spanId}:0:0`};
+        const context = {'uber-trace-id': `${traceId}:${spanId}:${parentSpanId}:${flags}`};
 
-        expect(buildTraceContext(context)).toEqual({traceId, spanId});
+        expect(buildTraceContext(context)).toEqual({traceId, spanId, parentSpanId, flags});
       });
     });
   })
