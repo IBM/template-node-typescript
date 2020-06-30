@@ -3,7 +3,7 @@ import * as expressPino from 'express-pino-logger';
 
 import {LoggerApi} from './logger.api';
 import {getNamespace} from 'cls-hooked';
-import {TraceConstants} from '../util/trace-constants';
+import {TraceConstants} from '../util/opentracing/trace-constants';
 
 // tslint:disable
 class ChildLogger extends LoggerApi {
@@ -40,7 +40,7 @@ class ChildLogger extends LoggerApi {
   }
 
   child(component: string): LoggerApi {
-    const clsNamespace = getNamespace(TraceConstants.TRACE_NAMESPACE);
+    const clsNamespace = getNamespace(TraceConstants.NAMESPACE);
 
     const traceContext = clsNamespace ? clsNamespace.get(TraceConstants.TRACE_CONTEXT) : {};
 
