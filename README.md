@@ -60,7 +60,8 @@ kubectl get pods
 
 Use the IBM Garage for Cloud CLI to register the GIT Repo with Jenkins environment 
 ```$bash
-igc pipeline -n dev
+oc sync <project> --dev
+oc pipeline 
 ```
 
 ## More Details
