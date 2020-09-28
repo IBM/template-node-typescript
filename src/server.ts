@@ -20,6 +20,7 @@ const config = npmPackage.config || {
   'context-root': '/'
 };
 const configApiContext = config['context-root'];
+
 export class ApiServer {
   @Inject
   logger: LoggerApi;
@@ -29,9 +30,9 @@ export class ApiServer {
   // private readonly app: express.Application;
   private server: http.Server = null;
   public PORT: number = +process.env.PORT || npmPackage.config.port;
-  
 
   constructor(private readonly app: express.Application = express(), apiContext = configApiContext) {
+
     this.app.use(opentracingMiddleware({tracer: this.tracer}));
     this.logger.apply(this.app);
     this.app.use(cors());
@@ -77,22 +78,20 @@ export class ApiServer {
    */
   public async start(): Promise<ApiServer> {
     return new Promise<ApiServer>((resolve, reject) => {
-        this.app.on("error",(e) => {
-          console.log("Listen Error",e);
-  
-          return reject(e);
-        });
-        this.server = this.app.listen(this.PORT,() => {
-        
-          const addressInfo = this.server.address() as AddressInfo;
-  
-          const address = addressInfo.address === '::' ? 'localhost' : addressInfo.address;
-  
-          // tslint:disable-next-line:no-console
-          console.log(`Listening to http://${address}:${addressInfo.port}`);
-  
-          return resolve(this);
-          });
+      this.server = this.app.listen(this.PORT, (err: any) => {
+        if (err) {
+          return reject(err);
+        }
+
+        const addressInfo = this.server.address() as AddressInfo;
+
+        const address = addressInfo.address === '::' ? 'localhost' : addressInfo.address;
+
+        // tslint:disable-next-line:no-console
+        console.log(`Listening to http://${address}:${addressInfo.port}`);
+
+        return resolve(this);
+      });
     });
   }
 
