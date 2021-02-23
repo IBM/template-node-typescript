@@ -1,0 +1,6 @@
+dependencies:
+- name: starter-kit
+  repository: https://ibm-garage-cloud.github.io/toolkit-charts/
+  version: 0.4.3
+digest: sha256:2bd781249c1bf6d239399e2c29320eb6c7f069a7317b378ab26a717fc1b17325
+generated: "2021-02-23T00:12:16.474222-06:00"
