@@ -1,50 +1,54 @@
-# Default values for template-node-typescript.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-global: {}
+global:
+  tlsSecretName: ""
+  ingressSubdomain: ""
 
-replicaCount: 1
-logLevel: "debug"
+base:
+  runtime: nodejs
 
-image:
-  repository: replace
-  tag: replace
-  pullPolicy: IfNotPresent
-  port: 3000
+  image:
+    repository: bitnami/nginx
+    port: 3000
+    probePath: /
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
 
-nameOverride: ""
-fullnameOverride: ""
-
-service:
-  type: ClusterIP
-  port: 80
-
-route:
-  enabled: false
-
-ingress:
-  enabled: true
-  appid:
+  autoscaling:
     enabled: false
-    # web or app - https://cloud.ibm.com/docs/services/appid?topic=appid-kube-auth
-    requestType: web
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
 
-#  host: hello
-  namespaceInHost: true
-  subdomain: containers.appdomain.cloud
-  path: "/"
+  # resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
 
-#  tlsSecretName: ""
+  route:
+    enabled: true
 
-jaegerConfigName: jaeger-config
-jaegerSecretName: jaeger-access
+  ingress:
+    enabled: false
 
-vcsInfo:
-  repoUrl: ""
-  branch: ""
+  env:
+    - name: IMAGE_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: LOG_LEVEL
+      value: "debug"
 
-partOf: ""
-
-connectsTo: ""
-
-runtime: nodejs
+  envFrom:
+    - configMapRef:
+        name: jaeger-config
+        optional: true
+    - secretRef:
+        name: jaeger-access
+        optional: true
