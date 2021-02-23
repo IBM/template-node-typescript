@@ -31,33 +31,6 @@ describe('server', () => {
         apiServer = buildApiServer();
       });
 
-      context('when error during startup', () => {
-        test('then throw err', () => {
-          const server: http.Server = {
-            address: jest.fn(),
-          } as any;
-
-          const expectedError = new Error('error starting');
-          (apiServer.getApp().listen as Mock).mockImplementation((port: number, callback: (err?) => void) => {
-            setTimeout(() => {
-              callback(expectedError);
-            }, 2);
-
-            return server;
-          });
-          (server.address as Mock).mockReturnValue({
-            address: 'localhost', port: 1234
-          });
-
-          return apiServer.start()
-            .then(data => fail('should throw error'))
-            .catch(err => {
-              expect(err).toEqual(expectedError);
-              return;
-            });
-        });
-      });
-
       context('when address is "::"', () => {
         test('then display localhost', async () => {
           const server: http.Server = {
