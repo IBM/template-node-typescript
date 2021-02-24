@@ -46,7 +46,7 @@
     "typescript-ioc": "^3.2.1",
     "typescript-rest": "^3.0.1",
     "typescript-rest-ioc": "^1.0.0",
-    "typescript-rest-swagger": "^1.1.1"
+    "typescript-rest-swagger": "^1.1.2"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
