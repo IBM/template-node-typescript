@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/nodejs-14:1-28 AS builder
+FROM registry.access.redhat.com/ubi8/nodejs-12:1-77 AS builder
 
 ## Requirement 1: Universal base image (UBI)
 ## Requirement 4: Non-root, arbitrary user IDs is already taken care
@@ -24,7 +24,7 @@ COPY . .
 RUN ls -lA && npm install
 RUN npm run build
 
-FROM registry.access.redhat.com/ubi8/nodejs-14:1-28
+FROM registry.access.redhat.com/ubi8/nodejs-12:1-77
 
 ## Requirement 3: Do not modify, replace or combine Red Hat packages or layers is already taken care
 
