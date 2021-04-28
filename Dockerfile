@@ -29,7 +29,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-14:1-28
 ## Requirement 3: Do not modify, replace or combine Red Hat packages or layers is already taken care
 
 ## Requirement 6: Image Identification
-LABEL name="Typescript Node App" \
+LABEL name="Typescript Microservice" \
       vendor="IBM" \
       version="v1.0.0" \
       release="1" \
