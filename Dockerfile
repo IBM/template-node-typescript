@@ -1,14 +1,5 @@
 FROM registry.access.redhat.com/ubi8/nodejs-14:1-28 AS builder
 
-USER root
-
-## comment the below line if there are no sec severities
-RUN dnf -y update-minimal --security --sec-severity=Important --sec-severity=Critical && dnf clean all
-
-COPY ./licenses /licenses
-
-USER default
-
 WORKDIR /opt/app-root/src
 
 COPY . .
@@ -18,10 +9,19 @@ RUN npm run build
 
 FROM registry.access.redhat.com/ubi8/nodejs-14:1-28
 
-LABEL name="Typescript Microservice" \
+USER root
+
+## comment the below line if there are no sec severities
+RUN dnf -y update-minimal --security --sec-severity=Important --sec-severity=Critical && dnf clean all
+
+COPY ./licenses /licenses
+
+USER default
+
+LABEL name="ibm/template-node-typescript" \
       vendor="IBM" \
-      version="v1.0.0" \
-      release="1" \
+      version="1" \
+      release="28" \
       summary="This is an example of a container image." \
       description="This container image will deploy a Typescript Node App"
 
