@@ -11,8 +11,8 @@ FROM registry.access.redhat.com/ubi8/nodejs-14:1-28
 
 USER root
 
-## comment the below line if there are no sec severities
-RUN dnf -y update-minimal --security --sec-severity=Important --sec-severity=Critical && dnf clean all
+## Uncomment the below line to update image security content if any
+# RUN dnf -y update-minimal --security --sec-severity=Important --sec-severity=Critical && dnf clean all
 
 COPY ./licenses /licenses
 
