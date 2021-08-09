@@ -51,7 +51,7 @@ Make sure you are logged into the IBM Cloud using the IBM Cloud CLI and have acc
 to your development cluster.
 
 ```$bash
-npm i -g @garage-catalyst/ibm-garage-cloud-cli
+npm i -g @ibmgaragecloud/cloud-native-toolkit-cli
 ibmcloud login -a cloud.ibm.com -r <region> -g <resource group>
 ibmcloud ks cluster-config --cluster <cluster-name>
 kubectl get pods
