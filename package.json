@@ -75,7 +75,7 @@
     "sonarqube-scanner": "^2.8.1",
     "supertest": "^6.1.6",
     "ts-jest": "^27.0.5",
-    "ts-node": "^9.1.1",
+    "ts-node": "^10.2.1",
     "tslint": "^6.1.3",
     "typescript": "^4.4.2"
   },
