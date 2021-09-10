@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/nodejs-14:1-28.1618434924 AS builder
+FROM registry.access.redhat.com/ubi8/nodejs-14:1-43 AS builder
 
 WORKDIR /opt/app-root/src
 
@@ -6,7 +6,7 @@ COPY . .
 
 RUN ls -lA && npm ci && npm run build
 
-FROM registry.access.redhat.com/ubi8/nodejs-14:1-28.1618434924
+FROM registry.access.redhat.com/ubi8/nodejs-14:1-43
 
 ## Uncomment the below lines to update image security content if any
 # USER root

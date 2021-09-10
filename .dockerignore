@@ -1,7 +1,7 @@
 .git
 .cache
 
-node_modules
+node_modules/
 
 Jenkinsfile
 CODE_OF_CONDUCT.md
@@ -10,4 +10,6 @@ README.md
 chart/
 dist/
 docs/
-
+test-report.xml
+setup-template.sh
+update-template.sh
