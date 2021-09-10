@@ -1,5 +1,5 @@
-import * as pino from 'pino';
-import * as expressPino from 'express-pino-logger';
+import {default as pino} from 'pino';
+import {default as expressPino} from 'express-pino-logger';
 
 import {LoggerApi} from './logger.api';
 import {getNamespace} from 'cls-hooked';
@@ -11,32 +11,60 @@ class ChildLogger extends LoggerApi {
     super();
   }
 
-  error(message: any, ...args: any): void {
-    this.logger.error(message, ...args);
+  error(message: string, context?: object): void {
+    if (context) {
+      this.logger.error(context, message);
+    } else {
+      this.logger.error(message);
+    }
   }
 
-  log(message: any, ...args: any): void {
-    this.info(message, ...args);
+  log(message: string, context?: object): void {
+    if (context) {
+      this.logger.info(context, message);
+    } else {
+      this.logger.info(message);
+    }
   }
 
-  debug(message: any, ...args: any): void {
-    this.logger.debug(message, ...args);
+  debug(message: string, context?: object): void {
+    if (context) {
+      this.logger.debug(context, message);
+    } else {
+      this.logger.debug(message);
+    }
   }
 
-  info(message: any, ...args: any): void {
-    this.logger.info(message, ...args);
+  info(message: string, context?: object): void {
+    if (context) {
+      this.logger.info(context, message);
+    } else {
+      this.logger.info(message);
+    }
   }
 
-  warn(message: any, ...args: any): void {
-    this.logger.warn(message, ...args);
+  warn(message: string, context?: object): void {
+    if (context) {
+      this.logger.warn(context, message);
+    } else {
+      this.logger.warn(message);
+    }
   }
 
-  fatal(message: any, ...args: any): void {
-    this.logger.fatal(message, ...args);
+  fatal(message: string, context?: object): void {
+    if (context) {
+      this.logger.fatal(context, message);
+    } else {
+      this.logger.fatal(message);
+    }
   }
 
-  trace(message: any, ...args: any): void {
-    this.logger.trace(message, ...args);
+  trace(message: string, context?: object): void {
+    if (context) {
+      this.logger.trace(context, message);
+    } else {
+      this.logger.trace(message);
+    }
   }
 
   child(component: string): LoggerApi {

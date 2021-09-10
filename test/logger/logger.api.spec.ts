@@ -30,8 +30,8 @@ describe('logger.api', () => {
         const logger: LoggerApi = new MockLogger();
         logger.time(action, start);
 
-        expect((logger.info as Mock).mock.calls[0][0].action).toEqual(action);
-        expect((logger.info as Mock).mock.calls[0][0].duration).toBeGreaterThanOrEqual(duration);
+        expect((logger.info as Mock).mock.calls[0][1].action).toEqual(action);
+        expect((logger.info as Mock).mock.calls[0][1].duration).toBeGreaterThanOrEqual(duration);
       });
     });
   });

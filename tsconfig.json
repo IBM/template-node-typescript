@@ -6,6 +6,7 @@
     "noImplicitAny": false,
     "sourceMap": false,
     "declaration": false,
+    "esModuleInterop": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
