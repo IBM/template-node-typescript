@@ -1,4 +1,4 @@
-import * as express from 'express';
+import {default as express} from 'express';
 import {Server} from 'typescript-rest';
 import {Inject} from 'typescript-ioc';
 import {AddressInfo} from 'net';

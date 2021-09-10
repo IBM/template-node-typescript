@@ -1,5 +1,5 @@
 import {Application} from 'express';
-import * as request from 'supertest';
+import {default as request} from 'supertest';
 
 import {buildApiServer} from '../helper';
 
