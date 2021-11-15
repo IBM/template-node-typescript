@@ -66,7 +66,7 @@ oc pipeline
 
 ## More Details
 
-For more details on how to use this Starter Kit Template please review the [IBM Garage for Cloud Developer Tools Developer Guide](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/)
+For more details on how to use this Starter Kit Template please review the [IBM Garage for Cloud Developer Tools Developer Guide](https://cloudnativetoolkit.dev/)
 
 ## Next Steps
 
