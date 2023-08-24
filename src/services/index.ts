@@ -1,8 +1,5 @@
-import { Container } from "typescript-ioc";
+import { provider as helloWorldProvider } from './hello-world';
 
-export * from './hello-world.api';
-export * from './hello-world.service';
+export * from './hello-world';
 
-import config from './ioc.config';
-
-Container.configure(...config);
+export const providers = [helloWorldProvider];

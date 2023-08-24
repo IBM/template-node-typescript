@@ -22,25 +22,21 @@ This Starter Kit Template can be the foundation of a TypeScript Node.js Microser
 The starter kit provides the following features:
 
 - Built with [TypeScript](https://www.typescriptlang.org/)
-- REST services using `typescript-rest` decorators
-- Swagger documentation using `typescript-rest-swagger`
-- Dependency injection using `typescript-ioc` decorators
-- Logging using `bunyan`
+- [nestjs](https://nestjs.com/) framework
 - TDD environment with [Jest](https://jestjs.io/)
 - Pact testing [Pact](https://docs.pact.io/)
-- Jenkins DevOps pipeline that support OpenShift or IKS deployment
 
 #### Native Application Development
 
-Install the latest [Node.js](https://nodejs.org/en/download/) 6+ LTS version.
+Install the latest [Node.js](https://nodejs.org/en/download/) 18+ LTS version.
 
 After you have created a new git repo from this git template, remember to rename the project.
 Edit `package.json` and change the default name to the name you used to create the template.
 
 Once the Node toolchain has been installed, you can download the project dependencies with:
 
-```bash
-npm install
+```shell
+npm ci
 npm run build
 npm run start
 ```
@@ -50,23 +46,22 @@ npm run start
 Make sure you are logged into the IBM Cloud using the IBM Cloud CLI and have access 
 to your development cluster.
 
-```$bash
-npm i -g @ibmgaragecloud/cloud-native-toolkit-cli
+```shell
+curl -sL https://cli.cloudnativetoolkit.dev/install.sh | sh
 ibmcloud login -a cloud.ibm.com -r <region> -g <resource group>
 ibmcloud ks cluster-config --cluster <cluster-name>
 kubectl get pods
 
 ```
 
-Use the IBM Garage for Cloud CLI to register the GIT Repo with Jenkins environment 
-```$bash
-oc sync <project> --dev
+Use the Cloud Native Toolkit CLI to register the GIT Repo with CI environment 
+```shell
 oc pipeline 
 ```
 
 ## More Details
 
-For more details on how to use this Starter Kit Template please review the [IBM Garage for Cloud Developer Tools Developer Guide](https://cloudnativetoolkit.dev/)
+For more details on how to use this Starter Kit Template please review the [Cloud Native Toolkit Developer Guide](https://develop.cloudnativetoolkit.dev/)
 
 ## Next Steps
 

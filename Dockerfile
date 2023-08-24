@@ -1,40 +1,44 @@
-FROM registry.access.redhat.com/ubi8/nodejs-14:1-43 AS builder
+FROM registry.access.redhat.com/ubi9/nodejs-18:1-62.1692771036 AS builder
 
 WORKDIR /opt/app-root/src
 
-COPY . .
+COPY --chown=default:root . .
 
-RUN ls -lA && npm ci && npm run build
+RUN mkdir -p /opt/app-root/src/node_modules && \
+    ls -lA && \
+    npm ci && \
+    npm run build
 
-FROM registry.access.redhat.com/ubi8/nodejs-14:1-43
+FROM registry.access.redhat.com/ubi9/nodejs-18-minimal:1-67
 
 ## Uncomment the below lines to update image security content if any
 # USER root
 # RUN dnf -y update-minimal --security --sec-severity=Important --sec-severity=Critical && dnf clean all
 
-USER default
-
 LABEL name="ibm/template-node-typescript" \
       vendor="IBM" \
       version="1" \
-      release="28.1618434924" \
+      release="67" \
       summary="This is an example of a container image." \
       description="This container image will deploy a Typescript Node App"
 
 WORKDIR /opt/app-root/src
 
+COPY --from=builder --chown=1001:root /opt/app-root/src/dist dist
 
-COPY --from=builder /opt/app-root/src/dist dist
+COPY --chown=1001:root package*.json ./
 
-COPY package*.json ./
-RUN npm ci --only=production
+RUN ls -lA && \
+    mkdir -p /opt/app-root/src/node_modules && \
+    npm ci --only=production
 
-COPY licenses /licenses
-COPY public public
+COPY --chown=1001:root licenses licenses
+COPY --chown=1001:root public public
+# COPY --chown=1001:root licenses /licenses
 
 ENV HOST=0.0.0.0 PORT=3000
 
 EXPOSE 3000/tcp
 
-CMD ["npm","run","serve"]
+CMD ["npm", "run", "start"]
 

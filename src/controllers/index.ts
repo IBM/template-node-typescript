@@ -1,2 +1,5 @@
-export * from './hello-world.controller';
-export * from './health.controller';
+import { HelloWorldController } from './hello-world';
+
+export * from './hello-world';
+
+export const controllers = [HelloWorldController];
