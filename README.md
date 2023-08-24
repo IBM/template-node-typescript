@@ -1,73 +1,77 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+    <a href="http://kitura.io/">
+        <img src="https://landscape.cncf.io/logos/ibm-member.svg" height="100" alt="IBM Cloud">
+    </a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
+<p align="center">
+    <a href="https://cloud.ibm.com">
+    <img src="https://img.shields.io/badge/IBM%20Cloud-powered-blue.svg" alt="IBM Cloud">
+    </a>
+    <img src="https://img.shields.io/badge/platform-node-lightgrey.svg?style=flat" alt="platform">
+    <img src="https://img.shields.io/badge/license-Apache2-blue.svg?style=flat" alt="Apache 2">
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# TypeScript Microservice or Backend for Frontend with Node.js
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This Starter Kit Template can be the foundation of a TypeScript Node.js Microservice or Backend for Frontend.
 
-## Installation
 
-```bash
-$ npm install
+## Features
+
+The starter kit provides the following features:
+
+- Built with [TypeScript](https://www.typescriptlang.org/)
+- [nestjs](https://nestjs.com/) framework
+- TDD environment with [Jest](https://jestjs.io/)
+- Pact testing [Pact](https://docs.pact.io/)
+
+#### Native Application Development
+
+Install the latest [Node.js](https://nodejs.org/en/download/) 18+ LTS version.
+
+After you have created a new git repo from this git template, remember to rename the project.
+Edit `package.json` and change the default name to the name you used to create the template.
+
+Once the Node toolchain has been installed, you can download the project dependencies with:
+
+```shell
+npm ci
+npm run build
+npm run start
 ```
 
-## Running the app
+### Deploying 
 
-```bash
-# development
-$ npm run start
+Make sure you are logged into the IBM Cloud using the IBM Cloud CLI and have access 
+to your development cluster.
 
-# watch mode
-$ npm run start:dev
+```shell
+curl -sL https://cli.cloudnativetoolkit.dev/install.sh | sh
+ibmcloud login -a cloud.ibm.com -r <region> -g <resource group>
+ibmcloud ks cluster-config --cluster <cluster-name>
+kubectl get pods
 
-# production mode
-$ npm run start:prod
 ```
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+Use the Cloud Native Toolkit CLI to register the GIT Repo with CI environment 
+```shell
+oc pipeline 
 ```
 
-## Support
+## More Details
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+For more details on how to use this Starter Kit Template please review the [Cloud Native Toolkit Developer Guide](https://develop.cloudnativetoolkit.dev/)
 
-## Stay in touch
+## Next Steps
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+* Learn more about augmenting your Node.js applications on IBM Cloud with the [Node Programming Guide](https://cloud.ibm.com/docs/node?topic=nodejs-getting-started).
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This sample application is licensed under the Apache License, Version 2. Separate third-party code objects invoked within this code pattern are licensed by their respective providers pursuant to their own separate licenses. Contributions are subject to the [Developer Certificate of Origin, Version 1.1](https://developercertificate.org/) and the [Apache License, Version 2](https://www.apache.org/licenses/LICENSE-2.0.txt).
+
+[Apache License FAQ](https://www.apache.org/foundation/license-faq.html#WhatDoesItMEAN)
+
+
+
