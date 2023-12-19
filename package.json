@@ -41,7 +41,7 @@
     "opentracing": "^0.14.5",
     "pino": "^6.11.1",
     "rxjs": "^6.6.3",
-    "superagent": "^6.1.0",
+    "superagent": "^7.0.2",
     "tslib": "^2.1.0",
     "typescript-ioc": "^3.2.2",
     "typescript-rest": "^3.0.2",
